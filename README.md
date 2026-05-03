@@ -20,11 +20,16 @@
 
 - **Read-only walk** — dream only writes the report files; can never modify memory or notes by accident
 - **Reflective synthesis** — Phase Reflect surfaces patterns, drift, gaps, contradictions across files (extension over original autoDream)
-- **HTML UI with checkboxes** — modern dark theme, action-coded colors (green/red/blue), file chips, filter pills, progress bar, keyboard shortcuts
+- **HTML UI with checkboxes** — dark/light theme with toggle, action-coded color strip on every card (visible before clicking), file chips, two-row filter pills, sticky progress bar, full keyboard navigation, a11y `:focus-visible`, `prefers-reduced-motion` respected
 - **Robust JSON-block contract** — proposals embedded as fenced JSON blocks in the report; wake parses with regex, immune to markdown formatting drift
 - **10 action types** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links` / `purge_trash` (TRASH → `_archive/` after 30 days)
+- **Two-level recovery bin** — `soft_delete` → `memory/TRASH/` → after 30 days `purge_trash` proposes moving to `_archive/`. No `rm` ever.
+- **Cross-project global mode** — optional `dream global` scans every `~/.claude/projects/*/memory/` to find duplicate feedback files copy-pasted across projects, dead memory dirs, drift patterns
 - **Append-only notes log** — survives context compaction; Phase Reflect reads from disk, not RAM
+- **Race-condition lock** — atomic `mkdir <cwd>/.dream-lock/` (and `.wake-lock/`) prevents two concurrent runs from corrupting the notes log; stale locks (>1h) auto-recover
+- **TodoWrite progress tracking** — per file group (memory / cwd notes / projects), critical at 100+ files
 - **Win11 Git Bash aware** — handles `pwd -W` for slug computation, `cygpath` for Python paths
+- **Optional auto-trigger** — `SessionEnd` hook recipe in this README for autoDream-like autonomy without losing the human approval gate
 - **Safe by design** — `wake` only `mv` to `TRASH/` or `_archive/` (recoverable), never `rm`
 
 ## Quick Start
@@ -60,17 +65,28 @@ Output:
 - `<cwd>/.dream-payload-<date>.json` — input for `build_report.py`
 - `<cwd>/DREAM-REPORT-<date>.md` — full audit trail with one fenced JSON block per proposal
 - `<cwd>/DREAM-REPORT-<date>.html` — interactive UI
+- `<cwd>/.dream-lock/` — race-condition lock dir (auto-removed on completion; stale-recovers after 1h)
 
 ### HTML UI
 
 Open the HTML in a browser:
-- 🟢 **Constructive actions** (merge, create_new, extract) — green tint
-- 🔴 **Destructive actions** (delete, soft_delete) — red tint
-- 🔵 **Neutral actions** (update, index ops) — blue tint
+- 🟢 **Constructive actions** (merge, create_new, extract) — green strip on left edge of card
+- 🔴 **Destructive actions** (delete, soft_delete, purge_trash) — red strip
+- 🔵 **Neutral actions** (update, index ops) — blue strip
 
-Filter by category (M/N/I/O — memory/notes/index/other) or by action type. Click checkboxes, hit **💾 Save choices** — Chrome/Edge prompts for save location, Firefox/Safari downloads to `~/Downloads/`.
+Color-coding is visible **before clicking** — you can scan a 50-card report for destructive items at a glance.
 
-Keyboard: `Ctrl+A` select all · `Esc` deselect · `Ctrl+S` save.
+**Filters** (two rows): top — by category (M/N/I/O) or by action class (constructive/destructive); bottom (global mode only) — by project. Filters AND together; counts update live.
+
+**Per-section "Select all M/N/I/O"** button next to each section header — bulk-select inside one category without touching others.
+
+**Save choices** — Chrome/Edge prompts for save location via FS Access API, Firefox/Safari downloads to `~/Downloads/`. Selection persists in `localStorage` (namespaced by cwd hash) — accidental tab close doesn't lose work.
+
+**Keyboard:**
+- `Ctrl+A` — select all (currently visible under filters)
+- `Esc` — deselect all; second `Esc` restores previous selection (undo)
+- `Ctrl+S` — save choices
+- `T` — toggle dark/light theme
 
 ### Global mode — cross-project audit
 
@@ -114,15 +130,15 @@ Triggers `dream` when ≥5 memory files changed since last run. Still produces t
 
 ```
 dream/
-├── SKILL.md                  # workflow + safety rules + path computation
+├── SKILL.md                  # 4-phase workflow + safety rules + path computation + lock + global mode
 ├── references/
-│   └── action_types.md       # JSON contract for 9 proposal action types
+│   └── action_types.md       # JSON contract for 10 proposal action types + optional 'project' field
 └── assets/
-    ├── template.html         # dark-theme UI, no external deps (~480 lines)
-    └── build_report.py       # payload JSON → MD + HTML, with validation
+    ├── template.html         # dark/light theme UI, Google Fonts only (~1150 lines)
+    └── build_report.py       # payload JSON → MD + HTML, per-action validation
 
 wake/
-└── SKILL.md                  # discover choices, parse JSON blocks, summary gate, apply
+└── SKILL.md                  # discover choices, parse JSON blocks, summary gate, apply, lock
 ```
 
 ### JSON-block contract

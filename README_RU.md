@@ -20,11 +20,16 @@
 
 - **Read-only обход** — dream пишет только файлы отчёта, не может случайно изменить память или заметки
 - **Рефлексивный синтез** — Phase Reflect находит паттерны, дрейф, пробелы и противоречия между файлами (расширение поверх оригинального autoDream)
-- **HTML UI с чекбоксами** — современная тёмная тема, цветовая кодировка действий (зелёный/красный/синий), чипы файлов, фильтр-пилюли, прогресс-бар, горячие клавиши
+- **HTML UI с чекбоксами** — тёмная/светлая тема с переключателем, цветная полоска слева на каждой карточке (видна **до клика**), чипы файлов, два ряда фильтр-пилюль, sticky прогресс-бар, полная клавиатурная навигация, a11y `:focus-visible`, `prefers-reduced-motion`
 - **Надёжный JSON-block контракт** — proposals встроены как fenced JSON блоки в отчёт; wake парсит regex-ом, защищён от любого markdown drift
 - **10 типов действий** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links` / `purge_trash` (TRASH → `_archive/` через 30 дней)
+- **Двухуровневая корзина** — `soft_delete` → `memory/TRASH/` → через 30 дней `purge_trash` предлагает вынести в `_archive/`. Никаких `rm`.
+- **Cross-project global mode** — опциональный `dream global` сканирует все `~/.claude/projects/*/memory/`, находит дубли feedback'ов скопированные между проектами, мёртвые memory dirs, паттерны drift
 - **Append-only лог заметок** — переживает компакшен контекста; Phase Reflect читает с диска, не из RAM
+- **Lock против race-condition** — атомарный `mkdir <cwd>/.dream-lock/` (и `.wake-lock/`) предотвращает порчу notes log при параллельном запуске; stale locks (>1ч) auto-recover
+- **TodoWrite трекинг прогресса** — по группам файлов (memory / cwd notes / projects), критично при 100+ файлах
 - **Win11 Git Bash совместимость** — `pwd -W` для slug, `cygpath` для путей в Python
+- **Опциональный auto-trigger** — `SessionEnd` hook recipe в README для autoDream-like автономности без потери human approval gate
 - **Безопасен по дизайну** — `wake` делает `mv` только в `TRASH/` или `_archive/` (восстанавливаемо), никогда `rm`
 
 ## Быстрый старт
@@ -60,17 +65,40 @@ Output:
 - `<cwd>/.dream-payload-<date>.json` — input для `build_report.py`
 - `<cwd>/DREAM-REPORT-<date>.md` — полный audit trail с одним fenced JSON блоком на proposal
 - `<cwd>/DREAM-REPORT-<date>.html` — интерактивный UI
+- `<cwd>/.dream-lock/` — каталог-лок против race (удаляется при завершении; stale-recover после 1ч)
 
 ### HTML UI
 
 Открой HTML в браузере:
-- 🟢 **Конструктивные действия** (merge, create_new, extract) — зелёный оттенок
-- 🔴 **Деструктивные действия** (delete, soft_delete) — красный оттенок
-- 🔵 **Нейтральные действия** (update, операции с индексом) — синий оттенок
+- 🟢 **Конструктивные действия** (merge, create_new, extract) — зелёная полоска слева
+- 🔴 **Деструктивные действия** (delete, soft_delete, purge_trash) — красная полоска
+- 🔵 **Нейтральные действия** (update, операции с индексом) — синяя полоска
 
-Фильтр по категории (M/N/I/O — memory/notes/index/other) или по типу действия. Кликаешь чекбоксы, жмёшь **💾 Save choices** — Chrome/Edge спросит куда сохранить, Firefox/Safari скачает в `~/Downloads/`.
+Цветовая кодировка видна **до клика** — на отчёте из 50 карточек деструктив видишь сразу.
 
-Клавиатура: `Ctrl+A` — выбрать всё, `Esc` — сбросить, `Ctrl+S` — сохранить.
+**Фильтры** (два ряда): верхний — по категории (M/N/I/O) или action class (constructive/destructive); нижний (только в global mode) — по проекту. Фильтры объединяются по AND, счётчики обновляются live.
+
+**Кнопка "Выбрать все M/N/I/O"** рядом с заголовком каждой секции — массовый select внутри одной категории без затрагивания других.
+
+**Save choices** — Chrome/Edge спросит куда сохранить через FS Access API, Firefox/Safari скачает в `~/Downloads/`. Выбор хранится в `localStorage` (namespace по hash от cwd) — случайно закрытая вкладка не теряет работу.
+
+**Клавиатура:**
+- `Ctrl+A` — выбрать всё (видимое под фильтрами)
+- `Esc` — сбросить всё; повторный `Esc` восстановит предыдущий выбор (undo)
+- `Ctrl+S` — сохранить
+- `T` — переключить тёмную/светлую тему
+
+### Global mode — cross-project аудит
+
+Триггер: `поспи глобально`, `dream global`, `audit all memory`. Сканирует **все** `~/.claude/projects/*/memory/` директории сразу, не только по cwd-slug'у. Полезно для поиска межпроектных дублей feedback-файлов (один и тот же `feedback_X.md` скопирован в 5 проектов без синка), мёртвых memory dirs от заброшенных проектов, паттернов drift между проектами.
+
+В global mode:
+- Каждый proposal затрагивающий память получает поле `project: <slug>`
+- HTML отчёт показывает дополнительный ряд фильтр-пилюль по проектам (`⌂ Все проекты`, дальше по одной на проект)
+- Каждая карточка показывает project chip в header
+- `wake` резолвит `project` slug в нужный memory dir перед apply'ем
+
+В global mode cwd notes / project READMEs **не сканируются** — слишком дорого, фокус только на memory dirs.
 
 ### Wake — применяет выбранное
 
@@ -102,15 +130,15 @@ Wake находит `DREAM-CHOICES-<date>.json` (cwd → `~/Downloads/` → `~/D
 
 ```
 dream/
-├── SKILL.md                  # workflow + safety rules + path computation
+├── SKILL.md                  # 4-фазный workflow + safety rules + paths + lock + global mode
 ├── references/
-│   └── action_types.md       # JSON контракт для 9 типов действий
+│   └── action_types.md       # JSON контракт для 10 типов действий + опциональное поле 'project'
 └── assets/
-    ├── template.html         # тёмная тема UI, без external deps (~480 строк)
-    └── build_report.py       # payload JSON → MD + HTML, с валидацией
+    ├── template.html         # тёмная/светлая тема UI, только Google Fonts (~1150 строк)
+    └── build_report.py       # payload JSON → MD + HTML, per-action валидация
 
 wake/
-└── SKILL.md                  # discover choices, parse JSON, summary gate, apply
+└── SKILL.md                  # discover choices, parse JSON, summary gate, apply, lock
 ```
 
 ### JSON-block контракт
@@ -140,14 +168,16 @@ wake/
 - Read-only Bash: `ls`, `find` (без `-delete`/`-exec`), `grep`, `cat`, `head`, `tail`, `wc`, `du`, `stat`, `python` (только для build_report.py)
 - Write только в: `<cwd>/.dream-notes-<date>.md`, `<cwd>/.dream-payload-<date>.json`, `<cwd>/DREAM-REPORT-<date>.md`, `<cwd>/DREAM-REPORT-<date>.html`
 - Никаких `rm`, `mv`, `cp`, redirect, `find -delete`, никаких Edit/Write вне файлов отчёта
+- Lock-каталог `<cwd>/.dream-lock/` (атомарный mkdir) предотвращает порчу notes log при параллельном запуске; stale-lock (>1ч) auto-recover
 
 **wake** — деструктивные операции ограничены:
 
-- `Edit`/`Write` только в `<memory_dir>/` и явно перечисленных cwd notes из выбранных proposals
-- `mv` только в `<memory_dir>/TRASH/` или `<cwd>/_archive/dream-applied-<date>/`
+- `Edit`/`Write` только в `<memory_dir>/` (или `~/.claude/projects/<project>/memory/` если у proposal есть поле `project`) и явно перечисленных cwd notes из выбранных proposals
+- `mv` только в `<memory_dir>/TRASH/`, `<cwd>/_archive/dream-applied-<date>/`, или `<cwd>/_archive/trash-purged-<date>/` (для `purge_trash`)
 - Никогда `rm` (всегда `mv` = восстанавливаемо)
 - Не работает с пунктами, которых нет в `selected`
 - Не трогает папки проектов
+- Тот же механизм lock как у dream (`<cwd>/.wake-lock/`) предотвращает параллельный apply
 
 ## Зачем это нужно
 
