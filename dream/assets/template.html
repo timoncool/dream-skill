@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Dream Report — __DATE__</title>
+<style>
+  :root {
+    --bg: #0a0c10;
+    --bg-elev: #12151c;
+    --bg-card: #181c25;
+    --bg-hover: #1d212c;
+    --border: #232834;
+    --border-strong: #313847;
+    --border-focus: #4a5468;
+    --text: #e8ecef;
+    --text-dim: #9ba4b1;
+    --text-faint: #5b6473;
+    --accent: #7aa3ff;
+    --accent-strong: #5b8def;
+    --accent-bg: rgba(122, 163, 255, 0.10);
+    --accent-border: rgba(122, 163, 255, 0.25);
+    --warn: #f5c451;
+    --warn-bg: rgba(245, 196, 81, 0.07);
+    --warn-border: rgba(245, 196, 81, 0.25);
+    --danger: #ef6b6b;
+    --danger-bg: rgba(239, 107, 107, 0.10);
+    --danger-border: rgba(239, 107, 107, 0.30);
+    --good: #5cd388;
+    --good-bg: rgba(92, 211, 136, 0.10);
+    --good-border: rgba(92, 211, 136, 0.28);
+    --neutral-bg: rgba(122, 163, 255, 0.08);
+    --neutral-border: rgba(122, 163, 255, 0.22);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.15);
+    --shadow-hero: 0 4px 24px rgba(0,0,0,0.4);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-pill: 999px;
+    --transition: 0.18s cubic-bezier(.4,0,.2,1);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 2.5em 1.5em 7em;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection { background: var(--accent-bg); color: var(--text); }
+
+  /* Hero */
+  .hero {
+    margin-bottom: 2em;
+  }
+  .hero h1 {
+    font-size: 2.2em;
+    margin: 0 0 0.2em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text) 0%, var(--text-dim) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero .meta {
+    font-size: 0.88em;
+    color: var(--text-faint);
+    margin-bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em 1em;
+  }
+  .hero .meta span { display: inline-flex; align-items: center; gap: 0.4em; }
+  .hero .meta code {
+    background: var(--bg-elev);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95em;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  /* Insights */
+  .insights {
+    background: linear-gradient(135deg, var(--warn-bg) 0%, transparent 100%);
+    border: 1px solid var(--warn-border);
+    border-left: 3px solid var(--warn);
+    padding: 1.2em 1.5em;
+    margin: 2em 0;
+    border-radius: var(--radius);
+  }
+  .insights h2 {
+    margin: 0 0 0.8em;
+    color: var(--warn);
+    font-size: 1.1em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .insights ul { margin: 0; padding-left: 1.3em; }
+  .insights li { margin: 0.5em 0; color: var(--text); }
+
+  /* Stats Bar */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1em;
+    margin: 2em 0 1em;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1em 1.2em;
+  }
+  .stat-card .label {
+    font-size: 0.75em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3em;
+  }
+  .stat-card .value {
+    font-size: 1.6em;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .stat-card.accent .value { color: var(--accent); }
+  .stat-card.warn .value { color: var(--warn); }
+
+  /* Filter pills */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin: 1.5em 0 1em;
+    padding: 0.8em;
+    background: var(--bg-elev);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .filter-pill {
+    padding: 0.4em 0.9em;
+    border-radius: var(--radius-pill);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: all var(--transition);
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+  .filter-pill:hover { color: var(--text); border-color: var(--border-focus); }
+  .filter-pill.active {
+    background: var(--accent-bg);
+    border-color: var(--accent-border);
+    color: var(--accent);
+  }
+  .filter-pill .count {
+    background: var(--bg);
+    padding: 0 0.5em;
+    border-radius: var(--radius-pill);
+    font-size: 0.85em;
+    color: var(--text-faint);
+  }
+  .filter-pill.active .count { color: var(--accent); }
+
+  /* Section headers */
+  .section-header {
+    margin: 2.5em 0 1em;
+    display: flex;
+    align-items: baseline;
+    gap: 0.7em;
+  }
+  .section-header h2 {
+    font-size: 1.15em;
+    margin: 0;
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .section-header .desc {
+    color: var(--text-faint);
+    font-size: 0.85em;
+  }
+
+  /* Proposal card */
+  .proposal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 0.7em 0;
+    overflow: hidden;
+    transition: border-color var(--transition), background var(--transition), transform var(--transition);
+  }
+  .proposal:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-hover);
+  }
+  .proposal.checked {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, var(--accent-bg) 0%, var(--bg-card) 60%);
+    box-shadow: 0 0 0 1px var(--accent-border), var(--shadow-card);
+  }
+  .proposal.constructive.checked { border-color: var(--good); box-shadow: 0 0 0 1px var(--good-border), var(--shadow-card); }
+  .proposal.destructive.checked { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger-border), var(--shadow-card); }
+
+  .header-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9em;
+    cursor: pointer;
+    user-select: none;
+    padding: 1.1em 1.3em;
+  }
+  .header-row input[type=checkbox] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.3em;
+    height: 1.3em;
+    margin: 0.15em 0 0;
+    flex-shrink: 0;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 5px;
+    background: var(--bg-elev);
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition);
+  }
+  .header-row input[type=checkbox]:hover { border-color: var(--accent); }
+  .header-row input[type=checkbox]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .header-row input[type=checkbox]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px; top: 1px;
+    width: 5px; height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .proposal.constructive input[type=checkbox]:checked { background: var(--good); border-color: var(--good); }
+  .proposal.destructive input[type=checkbox]:checked { background: var(--danger); border-color: var(--danger); }
+
+  .header-text { flex: 1; min-width: 0; }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 0.4em;
+    flex-wrap: wrap;
+  }
+  .id-pill {
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    background: var(--bg-elev);
+    color: var(--text-dim);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75em;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    letter-spacing: 0.04em;
+  }
+  .action-badge {
+    padding: 2px 9px;
+    border-radius: var(--radius-pill);
+    font-size: 0.75em;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .action-badge.constructive {
+    background: var(--good-bg);
+    color: var(--good);
+    border: 1px solid var(--good-border);
+  }
+  .action-badge.destructive {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid var(--danger-border);
+  }
+  .action-badge.neutral {
+    background: var(--neutral-bg);
+    color: var(--accent);
+    border: 1px solid var(--neutral-border);
+  }
+  .file-count-chip {
+    font-size: 0.75em;
+    color: var(--text-faint);
+    background: var(--bg-elev);
+    padding: 1px 7px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+  }
+  .title {
+    font-weight: 600;
+    font-size: 1.02em;
+    color: var(--text);
+    line-height: 1.4;
+    margin: 0;
+  }
+  .summary {
+    color: var(--text-dim);
+    font-size: 0.9em;
+    margin: 0.4em 0 0;
+  }
+  .summary .arrow { color: var(--text-faint); margin: 0 0.4em; }
+  .summary code {
+    background: var(--bg-elev);
+    color: var(--good);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Body (details when expanded) */
+  .body {
+    border-top: 1px solid var(--border);
+    padding: 1em 1.3em 1.2em;
+    background: rgba(0,0,0,0.15);
+  }
+  .field {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 1em;
+    margin: 0.6em 0;
+    align-items: baseline;
+    font-size: 0.9em;
+  }
+  .field .key {
+    color: var(--text-faint);
+    font-weight: 500;
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-top: 0.2em;
+  }
+  .field .val {
+    color: var(--text);
+    word-wrap: break-word;
+    min-width: 0;
+  }
+
+  /* File chips (replaces bullet lists for short file lists) */
+  .file-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+    margin: 0;
+    padding: 0;
+  }
+  .file-chip {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85em;
+    font-family: 'JetBrains Mono', monospace;
+    word-break: break-all;
+  }
+  .field .val ul { margin: 0; padding-left: 1.2em; }
+  .field .val ul li { color: var(--text); margin: 0.25em 0; line-height: 1.5; }
+
+  /* Details (collapsed long content) */
+  details {
+    margin-top: 0.5em;
+    background: var(--bg-elev);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  details summary {
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 0.85em;
+    user-select: none;
+    padding: 0.5em 0.9em;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    transition: background var(--transition);
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before {
+    content: '▸';
+    color: var(--text-faint);
+    transition: transform var(--transition);
+    display: inline-block;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  details summary:hover { background: var(--bg-hover); color: var(--accent); }
+  details pre {
+    margin: 0;
+    padding: 0.9em 1em;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+    font-size: 0.82em;
+    color: var(--text-dim);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    line-height: 1.55;
+  }
+  .preview-text {
+    color: var(--text-faint);
+    font-size: 0.85em;
+    margin-top: 0.3em;
+    font-style: italic;
+    padding: 0 0.9em 0.6em;
+  }
+
+  /* Sticky bottom bar */
+  .controls {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10, 12, 16, 0.92);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-top: 1px solid var(--border);
+    padding: 0.9em 1.5em;
+    z-index: 100;
+  }
+  .controls-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+  }
+  .controls .spacer { flex: 1; }
+  .controls button {
+    padding: 0.55em 1.05em;
+    font-size: 0.9em;
+    cursor: pointer;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text);
+    transition: all var(--transition);
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .controls button:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-focus);
+    color: var(--text);
+  }
+  .controls button.primary {
+    background: var(--accent-strong);
+    color: white;
+    border-color: var(--accent-strong);
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(91, 141, 239, 0.25);
+  }
+  .controls button.primary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(91, 141, 239, 0.35);
+  }
+  .controls button.primary:active {
+    transform: translateY(0);
+  }
+  .controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Selection counter with progress */
+  .sel-display {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    color: var(--text-dim);
+    font-size: 0.88em;
+    font-variant-numeric: tabular-nums;
+  }
+  .sel-display b {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 1.05em;
+  }
+  .progress {
+    width: 120px;
+    height: 4px;
+    background: var(--border);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+  }
+  .progress .bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-strong) 0%, var(--accent) 100%);
+    width: 0%;
+    transition: width var(--transition);
+    border-radius: var(--radius-pill);
+  }
+
+  #status {
+    color: var(--text-dim);
+    font-size: 0.86em;
+    transition: color var(--transition);
+  }
+  #status.success { color: var(--good); }
+  #status.error { color: var(--danger); }
+  #status.warn { color: var(--warn); }
+
+  /* Keyboard shortcut hints */
+  .kbd {
+    display: inline-block;
+    padding: 0 5px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78em;
+    color: var(--text-dim);
+    line-height: 1.4;
+    margin: 0 0.15em;
+  }
+  .kbd-hint {
+    color: var(--text-faint);
+    font-size: 0.78em;
+    padding: 0 0.5em;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 3em 1em;
+    color: var(--text-faint);
+  }
+
+  /* Animations */
+  .proposal { animation: fadeInUp 0.3s ease-out backwards; }
+  .proposal:nth-child(1) { animation-delay: 0.02s; }
+  .proposal:nth-child(2) { animation-delay: 0.05s; }
+  .proposal:nth-child(3) { animation-delay: 0.08s; }
+  .proposal:nth-child(4) { animation-delay: 0.11s; }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Mobile */
+  @media (max-width: 720px) {
+    body { padding: 1.5em 1em 7em; }
+    .hero h1 { font-size: 1.6em; }
+    .field { grid-template-columns: 1fr; gap: 0.2em; }
+    .controls-inner { flex-wrap: wrap; gap: 0.5em; }
+    .progress { display: none; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 12px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border: 3px solid var(--bg); border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-focus); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>💤 Dream Report</h1>
+  <div class="meta">
+    <span>📅 <code>__DATE__</code></span>
+    <span>🧠 Memory: <code>__MEMORY_DIR__</code></span>
+    <span>📁 Cwd: <code>__CWD__</code></span>
+    <span>👁 Reviewed: __FILES_COUNT__</span>
+  </div>
+</div>
+
+<div class="insights">
+  <h2>💡 Insights</h2>
+  __INSIGHTS_HTML__
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="filters" id="filters"></div>
+
+<div id="proposals-container"></div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <button onclick="toggleAll(true)" title="Ctrl+A">Все</button>
+    <button onclick="toggleAll(false)" title="Esc">Снять</button>
+    <span class="kbd-hint"><span class="kbd">Ctrl</span>+<span class="kbd">A</span> · <span class="kbd">Esc</span></span>
+    <span class="spacer"></span>
+    <div class="sel-display">
+      <span>Выбрано: <b id="sel-count">0</b> / <span id="total-count">0</span></span>
+      <div class="progress"><div class="bar" id="progress-bar"></div></div>
+    </div>
+    <span id="status"></span>
+    <button class="primary" id="save-btn" onclick="saveChoices()">💾 Save choices</button>
+  </div>
+</div>
+
+<script>
+const PROPOSALS = __PROPOSALS_JSON__;
+const REPORT_DATE = "__DATE__";
+const STORAGE_KEY = 'dream-choices-' + REPORT_DATE;
+
+const CATEGORY_NAMES = {
+  M: 'Память',
+  N: 'Заметки',
+  I: 'Индекс MEMORY.md',
+  O: 'Прочее'
+};
+const CATEGORY_DESC = {
+  M: 'Изменения в memory-файлах: merge / delete / create_new',
+  N: 'Извлечение контента из cwd-заметок в память',
+  I: 'Правки индекса MEMORY.md',
+  O: 'Прочие операции'
+};
+
+let activeFilter = 'all';
+
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function isFileChip(s) {
+  // Heuristic: short string ending in .md/.json/.txt and no spaces
+  return /^[\w\-./]+\.(md|json|txt|html|js|py|sh|sql|yml|yaml)$/.test(s) && s.length < 80;
+}
+
+function renderField(f) {
+  let val = '';
+  if (f.type === 'list') {
+    // If all items are file paths — render as chips
+    const allFiles = f.items.length > 0 && f.items.every(isFileChip);
+    if (allFiles) {
+      val = '<div class="file-chips">' +
+        f.items.map(x => '<span class="file-chip">' + escHtml(x) + '</span>').join('') +
+        '</div>';
+    } else {
+      val = '<ul>' + f.items.map(x => '<li>' + escHtml(x) + '</li>').join('') + '</ul>';
+    }
+  } else if (f.type === 'longtext') {
+    val = '<details><summary>Показать полностью (' + f.full.length + ' chars)</summary>' +
+          '<pre>' + escHtml(f.full) + '</pre></details>' +
+          '<div class="preview-text">' + escHtml(f.preview) + '</div>';
+  } else {
+    val = escHtml(f.text);
+  }
+  return '<div class="field"><div class="key">' + escHtml(f.label) + '</div><div class="val">' + val + '</div></div>';
+}
+
+function render() {
+  const container = document.getElementById('proposals-container');
+  const byCat = {};
+  for (const p of PROPOSALS) {
+    const cat = p.id[0];
+    (byCat[cat] = byCat[cat] || []).push(p);
+  }
+
+  // Build filter pills
+  const filtersDiv = document.getElementById('filters');
+  let filtersHtml = '<div class="filter-pill ' + (activeFilter === 'all' ? 'active' : '') + '" data-filter="all">Все <span class="count">' + PROPOSALS.length + '</span></div>';
+  for (const cat of ['M', 'N', 'I', 'O']) {
+    if (!byCat[cat]) continue;
+    filtersHtml += '<div class="filter-pill ' + (activeFilter === cat ? 'active' : '') + '" data-filter="' + cat + '">' +
+      cat + ' · ' + (CATEGORY_NAMES[cat] || cat) + ' <span class="count">' + byCat[cat].length + '</span></div>';
+  }
+  // Action-class filters
+  const constructiveCount = PROPOSALS.filter(p => p.action_class === 'constructive').length;
+  const destructiveCount = PROPOSALS.filter(p => p.action_class === 'destructive').length;
+  if (constructiveCount > 0)
+    filtersHtml += '<div class="filter-pill ' + (activeFilter === 'constructive' ? 'active' : '') + '" data-filter="constructive" style="margin-left:auto">✨ Создание/мерж <span class="count">' + constructiveCount + '</span></div>';
+  if (destructiveCount > 0)
+    filtersHtml += '<div class="filter-pill ' + (activeFilter === 'destructive' ? 'active' : '') + '" data-filter="destructive">⌫ Удаление <span class="count">' + destructiveCount + '</span></div>';
+  filtersDiv.innerHTML = filtersHtml;
+
+  // Render proposals
+  let html = '';
+  for (const cat of ['M', 'N', 'I', 'O']) {
+    if (!byCat[cat]) continue;
+    const visible = byCat[cat].filter(p => filterMatches(p));
+    if (visible.length === 0) continue;
+    html += '<div class="section">';
+    html += '<div class="section-header"><h2>' + cat + ' — ' + (CATEGORY_NAMES[cat] || cat) + '</h2>';
+    html += '<span class="desc">' + (CATEGORY_DESC[cat] || '') + ' · ' + visible.length + ' предложений</span></div>';
+    for (const p of visible) {
+      html += '<div class="proposal ' + p.action_class + '" data-id="' + p.id + '" data-cat="' + cat + '" data-action-class="' + p.action_class + '">';
+      html += '<label class="header-row">';
+      html += '<input type="checkbox" value="' + p.id + '">';
+      html += '<div class="header-text">';
+      html += '<div class="header-meta">';
+      html += '<span class="id-pill">' + p.id + '</span>';
+      html += '<span class="action-badge ' + p.action_class + '">' + p.action_icon + ' ' + escHtml(p.action_label) + '</span>';
+      if (p.file_count > 0) html += '<span class="file-count-chip">' + p.file_count + ' файлов</span>';
+      html += '</div>';
+      html += '<h3 class="title">' + escHtml(p.title) + '</h3>';
+      html += '<div class="summary">' + escHtml(p.summary) + '</div>';
+      html += '</div></label>';
+      html += '<div class="body">';
+      for (const f of p.primary) html += renderField(f);
+      for (const f of p.secondary) html += renderField(f);
+      for (const f of p.collapsed) html += renderField(f);
+      html += '</div></div>';
+    }
+    html += '</div>';
+  }
+  container.innerHTML = html || '<div class="empty-state">Под фильтр <b>' + activeFilter + '</b> нет предложений</div>';
+
+  // Wire filter clicks
+  filtersDiv.querySelectorAll('.filter-pill').forEach(pill => {
+    pill.onclick = () => { activeFilter = pill.dataset.filter; render(); restoreChecks(); updateUI(); };
+  });
+}
+
+function filterMatches(p) {
+  if (activeFilter === 'all') return true;
+  if (['M','N','I','O'].includes(activeFilter)) return p.id[0] === activeFilter;
+  if (['constructive','destructive','neutral'].includes(activeFilter)) return p.action_class === activeFilter;
+  return true;
+}
+
+function toggleAll(checked) {
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = checked);
+  updateUI();
+}
+
+function getSelected() {
+  return Array.from(document.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
+}
+
+function getAllSelectedIncludingHidden() {
+  const visible = new Set(Array.from(document.querySelectorAll('input[type=checkbox]')).map(cb => cb.value));
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) {}
+  // Combine current visible + previously stored (for hidden by filter)
+  const visibleSelected = getSelected();
+  return [...new Set([...visibleSelected, ...stored.filter(id => !visible.has(id))])];
+}
+
+function updateUI() {
+  const sel = getAllSelectedIncludingHidden();
+  const total = PROPOSALS.length;
+  document.getElementById('sel-count').textContent = sel.length;
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('progress-bar').style.width = (sel.length / total * 100) + '%';
+  document.querySelectorAll('.proposal').forEach(div => {
+    const cb = div.querySelector('input[type=checkbox]');
+    div.classList.toggle('checked', cb && cb.checked);
+  });
+  document.getElementById('save-btn').disabled = sel.length === 0;
+  saveToStorage();
+}
+
+function saveToStorage() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(getAllSelectedIncludingHidden())); } catch(e) {}
+}
+
+function restoreChecks() {
+  // Restore from storage for currently visible items
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) {}
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.checked = saved.includes(cb.value);
+  });
+}
+
+function restoreFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    document.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      if (saved.includes(cb.value)) cb.checked = true;
+    });
+    if (saved.length > 0) showStatus('Восстановлено ' + saved.length + ' выбранных', 'warn');
+  } catch(e) {}
+}
+
+async function saveChoices() {
+  const sel = getAllSelectedIncludingHidden();
+  if (sel.length === 0) { showStatus('Ничего не выбрано', 'error'); return; }
+  const data = JSON.stringify({ report_date: REPORT_DATE, selected: sel, timestamp: new Date().toISOString() }, null, 2);
+  const filename = 'DREAM-CHOICES-' + REPORT_DATE + '.json';
+
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+      });
+      const w = await handle.createWritable();
+      await w.write(data);
+      await w.close();
+      showStatus('✓ Сохранено: ' + handle.name + ' · скажи wake в чате', 'success');
+      return;
+    } catch(e) {
+      if (e.name === 'AbortError') { showStatus('Отменено', 'warn'); return; }
+    }
+  }
+
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('✓ Скачано: ' + filename + ' · скажи wake', 'success');
+}
+
+function showStatus(msg, kind) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = kind || '';
+  setTimeout(() => { if (el.textContent === msg) { el.textContent = ''; el.className = ''; } }, 8000);
+}
+
+function buildStats() {
+  const stats = document.getElementById('stats');
+  const total = PROPOSALS.length;
+  const constructive = PROPOSALS.filter(p => p.action_class === 'constructive').length;
+  const destructive = PROPOSALS.filter(p => p.action_class === 'destructive').length;
+  const totalFiles = PROPOSALS.reduce((sum, p) => sum + (p.file_count || 0), 0);
+  stats.innerHTML =
+    '<div class="stat-card accent"><div class="label">Предложений</div><div class="value">' + total + '</div></div>' +
+    '<div class="stat-card"><div class="label">Создание/мерж</div><div class="value">' + constructive + '</div></div>' +
+    '<div class="stat-card warn"><div class="label">Удаление</div><div class="value">' + destructive + '</div></div>' +
+    '<div class="stat-card"><div class="label">Затронет файлов</div><div class="value">' + totalFiles + '</div></div>';
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'a' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    toggleAll(true);
+  } else if (e.key === 'Escape') {
+    toggleAll(false);
+  } else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveChoices();
+  }
+});
+
+buildStats();
+render();
+restoreFromStorage();
+updateUI();
+document.addEventListener('change', e => { if (e.target.type === 'checkbox') updateUI(); });
+</script>
+</body>
+</html>
