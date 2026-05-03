@@ -18,7 +18,25 @@ description: Применяет выбранные user'ом изменения 
 
 ## Workflow
 
-### Phase 1 — Найти отчёт и выбор
+### Phase 1 — Lock + найти отчёт и выбор
+
+**Сначала lock против race** (как в dream/SKILL.md Phase 0). Если две сессии одновременно запустят wake на одном отчёте — Edit'ы перезатрут друг друга, MEMORY.md превратится в кашу.
+
+```bash
+LOCK_DIR="$CWD_BASH/.wake-lock"
+if mkdir "$LOCK_DIR" 2>/dev/null; then
+  echo $$ > "$LOCK_DIR/pid"
+else
+  LOCK_AGE=$(( $(date +%s) - $(stat -c %Y "$LOCK_DIR" 2>/dev/null || stat -f %m "$LOCK_DIR") ))
+  if [ "$LOCK_AGE" -gt 3600 ]; then
+    rm -rf "$LOCK_DIR" && mkdir "$LOCK_DIR" && echo $$ > "$LOCK_DIR/pid"
+  else
+    echo "WAKE ALREADY RUNNING (lock age ${LOCK_AGE}s) — abort"
+    exit 0
+  fi
+fi
+# В финале Phase 5: rm -rf "$LOCK_DIR"
+```
 
 **Сначала вычислить пути** (как в dream/SKILL.md — `_BASH` для bash команд, `_WIN` для Python):
 
@@ -133,12 +151,25 @@ Verify: каждый ID в `selected` есть в map. Если нет — warn,
 
 ### Phase 4 — Apply (по подтверждению)
 
+**Cross-project resolution (global mode).** Если proposal имеет поле `project: <slug>` — target memory dir = `~/.claude/projects/<slug>/memory/`, не текущий `$MEMORY_DIR_BASH`. Если поля нет (default mode) — используй `$MEMORY_DIR_BASH`.
+
+```python
+def resolve_memory_dir(proposal, default_dir):
+    proj = proposal.get('project')
+    if proj:
+        return os.path.expanduser(f'~/.claude/projects/{proj}/memory')
+    return default_dir
+```
+
+**Verify cross-project access:** для каждого уникального `project` в selected — проверь `os.path.isdir(target_dir)` до начала apply'а. Если нет → fail весь cross-project item с reason "memory dir not found for project=<slug>".
+
 **Подготовь dest директории один раз перед началом:**
 
 ```bash
 mkdir -p "$MEMORY_DIR_BASH/TRASH"
 mkdir -p "$CWD_BASH/_archive/dream-applied-$REPORT_DATE"
 mkdir -p "$CWD_BASH/_archive/trash-purged-$REPORT_DATE"   # для purge_trash items
+# Per-project TRASH dirs создавай on-demand при apply (не все проекты в selected)
 ```
 
 Для каждого item в `selected`, в порядке Apply order recommendation из MD-отчёта (по умолчанию M → N → I → O):
@@ -242,6 +273,12 @@ Failed: <list with reasons or "none">
 Skipped: <list или "none">
 Memory dir: X → Y файлов, MEMORY.md: A → B строк
 Choices: <path JSON> (можно архивировать)
+```
+
+**Release lock** в самом конце (после написания audit log в отчёт):
+
+```bash
+rm -rf "$CWD_BASH/.wake-lock"
 ```
 
 **Audit trail в MD-отчёте:** добавить новую секцию в КОНЕЦ `DREAM-REPORT-<date>.md`.

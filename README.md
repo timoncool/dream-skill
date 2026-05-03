@@ -72,11 +72,43 @@ Filter by category (M/N/I/O — memory/notes/index/other) or by action type. Cli
 
 Keyboard: `Ctrl+A` select all · `Esc` deselect · `Ctrl+S` save.
 
+### Global mode — cross-project audit
+
+Trigger: `поспи глобально`, `dream global`, `audit all memory`. Scans **every** `~/.claude/projects/*/memory/` directory at once instead of just the cwd's slug. Useful for finding cross-project duplicate feedback files (same `feedback_X.md` copy-pasted into 5 projects without sync), dead memory dirs from abandoned projects, or drift patterns between projects.
+
+In global mode:
+- Each proposal touching memory gets a `project: <slug>` field
+- HTML report shows extra row of project filter pills (`⌂ Все проекты`, then per-project)
+- Each card displays a project chip in the header
+- `wake` resolves `project` slug to the right memory dir before applying
+
+Skip cwd notes / project READMEs scanning in global mode — too expensive, focus stays on memory dirs only.
+
 ### Wake — apply selected
 
 Trigger: `проснулся`, `wake`, `apply dream`, `wake M1,M3,N2`, `wake all`.
 
 Wake locates `DREAM-CHOICES-<date>.json` (cwd → `~/Downloads/` → `~/Desktop/`), parses report JSON blocks, shows summary, asks once for confirmation, then applies only checked items via `Edit`/`Write` and `mv` to `TRASH/`/`_archive/`. Appends a `## Wake log — <timestamp>` section to the report for audit trail.
+
+## Auto-trigger (opt-in)
+
+By design, dream runs only on explicit request — that's the philosophical split from autoDream. But if you want autoDream-like autonomy without the audit problems, add a `SessionEnd` hook to `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "SessionEnd": [{
+      "matcher": "*",
+      "hooks": [{
+        "type": "command",
+        "command": "test $(find ~/.claude/projects/$(pwd | sed 's:[/\\]:-:g')/memory -name '*.md' -newer ~/.dream-last-run 2>/dev/null | wc -l) -gt 5 && claude -p 'поспи' && touch ~/.dream-last-run"
+      }]
+    }]
+  }
+}
+```
+
+Triggers `dream` when ≥5 memory files changed since last run. Still produces the HTML report — you review it next time you open the project. No autonomous mutations.
 
 ## Architecture
 
@@ -120,14 +152,16 @@ See [`dream/references/action_types.md`](dream/references/action_types.md) for f
 - Read-only Bash: `ls`, `find` (no `-delete`/`-exec`), `grep`, `cat`, `head`, `tail`, `wc`, `du`, `stat`, `python` (for build_report.py only)
 - Write only: `<cwd>/.dream-notes-<date>.md`, `<cwd>/.dream-payload-<date>.json`, `<cwd>/DREAM-REPORT-<date>.md`, `<cwd>/DREAM-REPORT-<date>.html`
 - No `rm`, `mv`, `cp`, redirect, `find -delete`, no Edit/Write outside report files
+- Lock dir `<cwd>/.dream-lock/` (atomic mkdir) prevents concurrent runs corrupting the notes log; stale locks (>1h) auto-recover
 
 **wake** — restricted destructive ops:
 
-- `Edit`/`Write` only in `<memory_dir>/` and explicitly-listed cwd notes from selected proposals
-- `mv` only to `<memory_dir>/TRASH/` or `<cwd>/_archive/dream-applied-<date>/`
+- `Edit`/`Write` only in `<memory_dir>/` (or `~/.claude/projects/<project>/memory/` if proposal has `project` field) and explicitly-listed cwd notes from selected proposals
+- `mv` only to `<memory_dir>/TRASH/`, `<cwd>/_archive/dream-applied-<date>/`, or `<cwd>/_archive/trash-purged-<date>/` (for `purge_trash`)
 - No `rm` ever (always `mv` = recoverable)
 - No work on items not in `selected`
 - No project folder modifications
+- Same lock dir mechanism as dream (`<cwd>/.wake-lock/`) prevents concurrent apply runs
 
 ## Why this exists
 

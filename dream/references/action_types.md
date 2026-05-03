@@ -120,6 +120,20 @@ Write новый memory файл.
 - **title** (string) — короткое название для UI
 - **rationale** (string) — почему это предлагается
 
+## Optional field — `project` (cross-project / global mode)
+
+В **global mode** (когда dream сканирует все `~/.claude/projects/*/memory/`, не только cwd) каждый proposal затрагивающий memory должен иметь поле:
+
+- **project** (string, optional) — slug проекта (например `D--Projects-TEMP`). Wake резолвит это в `~/.claude/projects/<project>/memory/` для apply'а.
+
+Если поле отсутствует — wake считает что target в **текущем cwd memory dir** (default mode, обратная совместимость).
+
+Index actions (`MEMORY.md` правки) тоже могут иметь `project` — wake применит к индексу указанного проекта.
+
+`purge_trash` тоже может иметь `project` — wake mv из `<project>/memory/TRASH/` в `<cwd>/_archive/trash-purged-<date>/<project>/`.
+
+Cross-project insights в Phase 3 (`feedback X дублируется в проектах A, B`) — обычно превращаются в proposal с `project=A, action=soft_delete` чтобы оставить только канонический в B.
+
 ## Example полный proposal
 
 ```json

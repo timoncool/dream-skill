@@ -78,6 +78,26 @@ Output:
 
 Wake находит `DREAM-CHOICES-<date>.json` (cwd → `~/Downloads/` → `~/Desktop/`), парсит JSON блоки из отчёта, показывает summary, спрашивает один раз подтверждение, потом применяет только отмеченные пункты через `Edit`/`Write` и `mv` в `TRASH/`/`_archive/`. Дописывает секцию `## Wake log — <timestamp>` в отчёт для audit trail.
 
+## Auto-trigger (опционально)
+
+По дизайну `dream` запускается только явно — это философское отличие от autoDream. Но если хочешь autoDream-like автономность без audit-проблем — добавь `SessionEnd` hook в `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "SessionEnd": [{
+      "matcher": "*",
+      "hooks": [{
+        "type": "command",
+        "command": "test $(find ~/.claude/projects/$(pwd | sed 's:[/\\]:-:g')/memory -name '*.md' -newer ~/.dream-last-run 2>/dev/null | wc -l) -gt 5 && claude -p 'поспи' && touch ~/.dream-last-run"
+      }]
+    }]
+  }
+}
+```
+
+Триггерится если ≥5 memory файлов изменилось с последнего запуска. Всё равно генерит HTML отчёт — ты ревьюишь когда снова открываешь проект. Никаких автономных мутаций.
+
 ## Архитектура
 
 ```

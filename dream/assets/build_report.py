@@ -169,6 +169,7 @@ def build_html(payload, template_path):
         'rationale': 'Зачем',
         'files': 'Файлы',
         'target': 'Куда',
+        'project': 'Проект',
         'type': 'Тип memory',
         'diff_preview': 'Что изменится',
         'content_template': 'Содержимое нового файла',
@@ -180,7 +181,7 @@ def build_html(payload, template_path):
         'what_to_extract': 'Извлечь',
         'source_action': 'С источником',
     }
-    PRIMARY_KEYS = ['action', 'files', 'target', 'rationale']  # show first
+    PRIMARY_KEYS = ['action', 'project', 'files', 'target', 'rationale']  # show first
     COLLAPSED_KEYS = {'content_template', 'diff_preview', 'lines_to_shorten', 'links_to_add', 'links_to_remove'}  # in <details>
 
     def truncate(s, limit=300):
@@ -258,6 +259,7 @@ def build_html(payload, template_path):
             'action_icon': meta_icon,
             'action_label': action_label,
             'file_count': file_count,
+            'project': p.get('project', ''),  # global mode: project slug for filter
             'primary': primary,
             'secondary': secondary,
             'collapsed': collapsed,
@@ -266,9 +268,12 @@ def build_html(payload, template_path):
     # JSON + sanitize </ for inline-script safety
     proposals_json = json.dumps(ui_proposals, ensure_ascii=False).replace('</', '<\\/')
 
+    mode = payload.get('mode', 'cwd')   # 'cwd' (default) or 'global'
+
     output = (
         template
         .replace('__DATE__', payload['date'])
+        .replace('__MODE__', mode)
         .replace('__MEMORY_DIR__', html.escape(payload['memory_dir']))
         .replace('__CWD__', html.escape(payload['cwd']))
         .replace('__FILES_COUNT__', html.escape(payload['files_count']))

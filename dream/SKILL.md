@@ -68,11 +68,57 @@ JSONL транскрипты в `$PROJECTS_DIR_BASH/*.jsonl`.
 
 Edge case: если cwd сам внутри memory dir — пиши отчёт и notes-log в `<cwd>/../` чтобы не подмешать в indexer.
 
+## Modes
+
+### Default mode (cwd-only)
+Триггеры: `поспи`, `сон`, `dream`, `консолидируй память`. Scope: текущий cwd memory dir + cwd notes + projects в cwd.
+
+### Global mode (cross-project)
+Триггеры: `поспи глобально`, `dream global`, `audit all memory`, `консолидируй всю память`. Scope: **все** `~/.claude/projects/*/memory/` директории.
+
+Зачем: найти **межпроектные дубли feedback'ов** (один и тот же `feedback_X.md` скопирован в 3 проекта без учёта эволюции), устаревшие memory dirs от давно мёртвых проектов, паттерны drift между проектами.
+
+В global mode:
+- Phase 1 inventory расширяется на все проекты
+- Phase 2 читает memory всех проектов с тэгом `[project=<slug>]` в notes log
+- Phase 4 payload получает `mode: "global"`, каждый proposal затрагивающий memory имеет поле `project: <slug>` (см. `references/action_types.md`)
+- HTML UI добавляет фильтр-пилюли по проектам
+- Cwd notes / projects в global mode **не сканируются** — слишком дорого, фокус на memory dirs
+
 ## Workflow — 4 фазы
 
-### Phase 0 — Init notes log (КРИТИЧНО, делать первым шагом)
+### Phase 0 — Lock + Init notes log (КРИТИЧНО, делать первым шагом)
 
-Создай `<cwd>/.dream-notes-<YYYY-MM-DD>.md` через Write tool. Это append-only лог в который ты пишешь после **каждого** прочитанного файла. Без него Phase 3 reflect не сработает на больших корпусах: контекст растёт линейно, ранние reads забываются после compaction.
+**Сначала lock против race condition.** Если юзер запустит `dream` в двух терминалах одновременно — append'ы в notes log поедут, отчёт превратится в кашу. Inspired by autoDream's `.consolidate-lock`.
+
+```bash
+LOCK_DIR="$CWD_BASH/.dream-lock"
+DATE_TODAY=$(date +%Y-%m-%d)
+
+# Atomic mkdir = filesystem-level lock primitive
+if mkdir "$LOCK_DIR" 2>/dev/null; then
+  echo $$ > "$LOCK_DIR/pid"
+  echo "$DATE_TODAY" > "$LOCK_DIR/date"
+  echo "LOCK acquired"
+else
+  # Lock exists — check if stale (>1h old by mtime)
+  LOCK_AGE=$(( $(date +%s) - $(stat -c %Y "$LOCK_DIR" 2>/dev/null || stat -f %m "$LOCK_DIR") ))
+  if [ "$LOCK_AGE" -gt 3600 ]; then
+    echo "STALE LOCK (${LOCK_AGE}s old) — removing and re-acquiring"
+    rm -rf "$LOCK_DIR" && mkdir "$LOCK_DIR" && echo $$ > "$LOCK_DIR/pid"
+  else
+    echo "DREAM ALREADY RUNNING (lock age ${LOCK_AGE}s) — abort"
+    # Claude reads this and stops the workflow
+    exit 0
+  fi
+fi
+```
+
+**В финале Phase 4** (или при любой ошибке) — release: `rm -rf "$LOCK_DIR"`. Если dream упал — следующий запуск через 1 час сам подберёт stale lock.
+
+**Это единственное `rm` разрешённое в dream — и только для собственного lock-каталога.**
+
+Дальше — notes log. Создай `<cwd>/.dream-notes-<YYYY-MM-DD>.md` через Write tool. Это append-only лог в который ты пишешь после **каждого** прочитанного файла. Без него Phase 3 reflect не сработает на больших корпусах: контекст растёт линейно, ранние reads забываются после compaction.
 
 Шаблон notes log:
 
@@ -125,6 +171,18 @@ for f in "$MEMORY_DIR_BASH"/*.md; do
   grep -E '^(name|description|type):' "$f" 2>/dev/null | head -3
 done
 
+# === GLOBAL MODE only — обойти ВСЕ memory dirs ===
+# (пропусти если default mode — экономь turns)
+for proj_dir in "$HOME/.claude/projects"/*/; do
+  proj_slug=$(basename "$proj_dir")
+  proj_mem="$proj_dir/memory"
+  test -d "$proj_mem" || continue
+  test "$proj_mem" = "$MEMORY_DIR_BASH" && continue   # уже сканили выше
+  count=$(ls "$proj_mem"/*.md 2>/dev/null | wc -l)
+  age=$(stat -c '%Y' "$proj_mem" 2>/dev/null || stat -f '%m' "$proj_mem")
+  printf 'PROJECT %s: %d files, mtime=%s\n' "$proj_slug" "$count" "$age"
+done | sort -k4 -rn | head -20   # 20 самых свежих проектов
+
 # TRASH — возраст файлов (для D1 кандидатов на final delete)
 find "$MEMORY_DIR_BASH/TRASH/" -name "*.md" -mtime +30 2>/dev/null
 
@@ -145,6 +203,14 @@ Read `MEMORY.md` целиком — твой index, маленький. (Read co
 ### Phase 2 — Read EVERYTHING in scope, log as you go
 
 **Цель: прочитать ВСЁ полное содержимое каждого файла в scope.** Никаких лимитов "10-15 файлов". User в этом скилле явно запрашивает полное покрытие, контекст управляется через **notes log** (Phase 0).
+
+**TodoWrite для прогресса** (рекомендуется при >30 файлов): создай TodoWrite список с одним пунктом на каждую группу:
+- "Memory files (N штук)"
+- "Cwd notes (M штук)"
+- "Project READMEs (P штук)"
+- "JSONL grep (если нужен)"
+
+Помечай `in_progress` перед группой, `completed` после. Юзер видит реальный прогресс в footer pill — на 100+ файлах это критично, иначе кажется что висишь.
 
 После каждого Read'а — сразу Edit notes log (per-file блок 3-7 строк). Не пихай контент в context — лог это твоя долговременная память. Compaction может выкинуть ранние reads, но лог остаётся на диске.
 
@@ -264,7 +330,8 @@ Payload файл `.dream-payload-<date>.json` остаётся в cwd как aud
 
 **Запрещено:**
 - Любой `Edit`/`Write` в memory dir, проекты, заметки cwd (это работа `wake` skill)
-- `rm`, `mv`, `cp`, `chmod`, redirect `>`/`>>`, `tee`, `truncate`
+- `rm` где угодно **кроме `<cwd>/.dream-lock/`** (собственный lock-каталог skill'а — release в финале + stale recovery)
+- `mv`, `cp`, `chmod`, redirect `>`/`>>`, `tee`, `truncate`
 - `find -delete`, `find -exec rm/mv`
 
 Split на dream+wake существует именно потому что между «прочитать» и «изменить» обязательно осознанный выбор человеком галочками. Без этого — autoDream issue #38493 (hallucinated audit, factually unverified memories).

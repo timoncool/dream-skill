@@ -464,6 +464,20 @@
     border: 1px solid var(--border);
     font-variant-numeric: tabular-nums;
   }
+  .project-chip {
+    font-size: 0.73rem;
+    color: var(--accent);
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    padding: 2px 8px;
+    border-radius: var(--r-pill);
+    font-family: 'JetBrains Mono', monospace;
+    max-width: 22ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .project-chip::before { content: '⌂'; margin-right: 4px; opacity: 0.6; }
   .title {
     font-weight: 600;
     font-size: 1rem;
@@ -773,6 +787,7 @@
 <div class="stats" id="stats" aria-label="Statistics"></div>
 
 <div class="filters" id="filters" role="group" aria-label="Filters"></div>
+<div class="filters" id="project-filters" role="group" aria-label="Project filters" style="display:none;margin-top:-0.5em"></div>
 
 <div id="proposals-container" aria-live="polite"></div>
 
@@ -795,6 +810,7 @@
 const PROPOSALS = __PROPOSALS_JSON__;
 const REPORT_DATE = "__DATE__";
 const REPORT_CWD  = "__CWD__";
+const REPORT_MODE = "__MODE__";   // 'cwd' or 'global'
 
 // Namespaced storage key — cwd hash + date
 function hashStr(s) {
@@ -819,7 +835,12 @@ const CATEGORY_DESC = {
 // === Source-of-truth: Set, NOT DOM ===
 const selected = new Set();
 let activeFilter = 'all';
+let activeProject = 'all';   // global mode only
 let undoSnapshot = null;
+
+// Build project list (global mode)
+const PROJECTS = [...new Set(PROPOSALS.map(p => p.project).filter(Boolean))].sort();
+const HAS_PROJECTS = REPORT_MODE === 'global' && PROJECTS.length > 0;
 
 // ---------- helpers ----------
 function escHtml(s) {
@@ -831,6 +852,8 @@ function isFileChip(s) {
 }
 function visibleProposals() { return PROPOSALS.filter(filterMatches); }
 function filterMatches(p) {
+  // Project filter (global mode) — AND with category/action filter
+  if (HAS_PROJECTS && activeProject !== 'all' && p.project !== activeProject) return false;
   if (activeFilter === 'all') return true;
   if (['M','N','I','O'].includes(activeFilter)) return p.id[0] === activeFilter;
   if (['constructive','destructive','neutral'].includes(activeFilter)) return p.action_class === activeFilter;
@@ -874,12 +897,16 @@ function renderField(f) {
 
 function renderFilters() {
   const filtersDiv = document.getElementById('filters');
+  // Counts respect project filter (so user sees what's left after picking a project)
+  const filteredByProject = HAS_PROJECTS && activeProject !== 'all'
+    ? PROPOSALS.filter(p => p.project === activeProject)
+    : PROPOSALS;
   const counts = { M:0, N:0, I:0, O:0, constructive:0, destructive:0 };
-  for (const p of PROPOSALS) {
+  for (const p of filteredByProject) {
     counts[p.id[0]]++;
     if (counts[p.action_class] != null) counts[p.action_class]++;
   }
-  let html = pill('all', 'Все', PROPOSALS.length);
+  let html = pill('all', 'Все', filteredByProject.length);
   for (const cat of ['M','N','I','O']) {
     if (counts[cat]) html += pill(cat, cat + ' · ' + CATEGORY_NAMES[cat], counts[cat]);
   }
@@ -893,10 +920,36 @@ function renderFilters() {
     p.onclick = () => { activeFilter = p.dataset.filter; renderFilters(); renderProposals(); };
   });
 
+  // Project filter pills (global mode only, separate row)
+  const projDiv = document.getElementById('project-filters');
+  if (HAS_PROJECTS) {
+    const projCounts = {};
+    for (const p of PROPOSALS) projCounts[p.project] = (projCounts[p.project] || 0) + 1;
+    let projHtml = projPill('all', '⌂ Все проекты', PROPOSALS.length);
+    for (const proj of PROJECTS) projHtml += projPill(proj, proj, projCounts[proj]);
+    projDiv.innerHTML = projHtml;
+    projDiv.style.display = '';
+    projDiv.querySelectorAll('.filter-pill').forEach(p => {
+      p.onclick = () => {
+        activeProject = p.dataset.project;
+        activeFilter = 'all';   // reset category to avoid empty state confusion
+        renderFilters();
+        renderProposals();
+      };
+    });
+  } else {
+    projDiv.style.display = 'none';
+  }
+
   function pill(filter, label, count, divider) {
     const cls = 'filter-pill' + (activeFilter === filter ? ' active' : '') + (divider ? ' divider' : '');
     return '<button type="button" class="' + cls + '" data-filter="' + filter + '">' +
            label + ' <span class="count">' + count + '</span></button>';
+  }
+  function projPill(proj, label, count) {
+    const cls = 'filter-pill' + (activeProject === proj ? ' active' : '');
+    return '<button type="button" class="' + cls + '" data-project="' + escHtml(proj) + '">' +
+           escHtml(label) + ' <span class="count">' + count + '</span></button>';
   }
 }
 
@@ -932,6 +985,7 @@ function renderProposals() {
       html += '<span class="id-pill">' + p.id + '</span>';
       html += '<span class="action-badge ' + p.action_class + '">' + p.action_icon + ' ' + escHtml(p.action_label) + '</span>';
       if (p.file_count > 0) html += '<span class="file-count-chip">' + p.file_count + ' файлов</span>';
+      if (p.project) html += '<span class="project-chip" title="' + escHtml(p.project) + '">' + escHtml(p.project) + '</span>';
       html += '</div>';
       html += '<h3 class="title">' + escHtml(p.title) + '</h3>';
       html += '<div class="summary">' + escHtml(p.summary) + '</div>';
