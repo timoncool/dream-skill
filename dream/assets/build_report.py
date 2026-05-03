@@ -55,6 +55,7 @@ ACTION_REQUIRED_FIELDS = {
     'remove_links': ['links_to_remove'],
     'shorten_lines': ['lines_to_shorten'],
     'add_links': ['links_to_add'],
+    'purge_trash': ['files'],
 }
 
 COMMON_REQUIRED = ['id', 'category', 'action', 'title', 'rationale']
@@ -148,6 +149,7 @@ def build_html(payload, template_path):
         'remove_links': 'Удалить ссылки из индекса',
         'shorten_lines': 'Сократить строки индекса',
         'add_links': 'Добавить ссылки в индекс',
+        'purge_trash': 'Очистить TRASH (>30 дней)',
     }
     # Semantic class for color coding + icon (modern UI)
     ACTION_META = {
@@ -160,6 +162,7 @@ def build_html(payload, template_path):
         'remove_links': ('neutral', '−'),
         'shorten_lines': ('neutral', '✂'),
         'add_links': ('neutral', '+'),
+        'purge_trash': ('destructive', '🗑'),
     }
     KEY_LABELS = {
         'action': 'Действие',

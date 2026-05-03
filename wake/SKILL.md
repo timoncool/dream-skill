@@ -95,7 +95,7 @@ for i, block in enumerate(blocks):
 Получишь массив объектов с обязательными полями:
 - `id` (string, например "M1")
 - `category` ("memory" | "notes" | "index" | "other")
-- `action` (один из: update, merge, delete, soft_delete, create_new, extract, remove_links, shorten_lines, add_links)
+- `action` (один из: update, merge, delete, soft_delete, create_new, extract, remove_links, shorten_lines, add_links, purge_trash)
 - Action-specific поля (см. dream/SKILL.md секцию "Action types")
 
 Построй map `{id: proposal}`.
@@ -138,6 +138,7 @@ Verify: каждый ID в `selected` есть в map. Если нет — warn,
 ```bash
 mkdir -p "$MEMORY_DIR_BASH/TRASH"
 mkdir -p "$CWD_BASH/_archive/dream-applied-$REPORT_DATE"
+mkdir -p "$CWD_BASH/_archive/trash-purged-$REPORT_DATE"   # для purge_trash items
 ```
 
 Для каждого item в `selected`, в порядке Apply order recommendation из MD-отчёта (по умолчанию M → N → I → O):
@@ -194,6 +195,15 @@ mkdir -p "$CWD_BASH/_archive/dream-applied-$REPORT_DATE"
   - Вставить `line` непосредственно после строки заголовка
 - Edit `MEMORY.md`
 - Если `section` не найден → warning, skip, продолжай
+
+#### action: purge_trash (второй уровень корзины)
+- Для каждого file в `files`:
+  - Source: `$MEMORY_DIR_BASH/TRASH/<file>`
+  - Dest:   `$CWD_BASH/_archive/trash-purged-$REPORT_DATE/<file>`
+  - Если source не существует (юзер уже грохнул руками) → warning, skip, продолжай
+  - Если в dest уже есть файл с таким именем → переименовать dest как `<file>.<unix_ts>` (избежать перезаписи)
+  - `mv "$MEMORY_DIR_BASH/TRASH/<file>" "$CWD_BASH/_archive/trash-purged-$REPORT_DATE/<file>"`
+- **Никогда `rm`** — даже здесь. Файлы доезжают до `_archive/`, юзер сам решает когда финально удалить.
 
 После каждого item — короткий лог в чат: `✓ M1 applied (3 files merged → project_pikabu_mcp.md)`.
 
@@ -281,6 +291,7 @@ Skipped:
 - `mv` — **ТОЛЬКО** в:
   - `<memory_dir>/TRASH/` (для memory soft-delete)
   - `<cwd>/_archive/dream-applied-<date>/` (для cwd notes archive)
+  - `<cwd>/_archive/trash-purged-<date>/` (для purge_trash из memory/TRASH/)
 - `mkdir -p` — для dest директорий перед mv
 
 **Запрещено:**

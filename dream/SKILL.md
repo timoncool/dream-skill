@@ -169,6 +169,8 @@ Read `MEMORY.md` целиком — твой index, маленький. (Read co
    grep -rn "<narrow term>" "$PROJECTS_DIR_BASH/" --include="*.jsonl" | tail -50
    ```
 
+7. **TRASH purge candidates** — для каждого файла в `memory/TRASH/` с mtime >30 дней (из find в Phase 1) собери список. В Phase 4 это станет proposal `id=O1, action=purge_trash` (см. `references/action_types.md`). Пропусти если TRASH пустой или нет старых файлов. **Сохрани файлы которые юзер явно помечал как точки возврата** (например `MEMORY_backup_*`) — упомяни в rationale что keep.
+
 **Лимита нет.** Read EVERYTHING. Контекст-управление через notes log — не пропускай ни одного файла, не пропускай ни одной log-записи.
 
 В отчёте укажи: `Files reviewed: surveyed N total (memory: M, cwd notes: K, projects: P) / read in full: <count log entries>`.

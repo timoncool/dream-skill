@@ -91,7 +91,26 @@ Write новый memory файл.
 
 ## Other (category: "other")
 
-Custom actions — должны иметь явный `description` поле и не использовать необычные tools.
+### `purge_trash`
+**Второй уровень корзины.** Финально вынести из `memory/TRASH/` старые файлы (>30 дней без обращения) в архив проекта `_archive/trash-purged-<date>/`. По-прежнему **никакого `rm`** — wake делает только `mv`, файлы recoverable. Юзер потом может `rm` руками когда уверен.
+
+- **files** (array of strings) — basename файлов в TRASH, например `["old_handoff.md", "stale_plan.md"]`. Wake mv их из `<memory_dir>/TRASH/` в `<cwd>/_archive/trash-purged-<date>/`.
+
+Когда генерировать (dream Phase 2): для каждого TRASH файла с `mtime > 30 дней` собрать в один O-proposal. Не предлагать если TRASH пустой или все файлы свежие.
+
+Пример:
+```json
+{
+  "id": "O1", "category": "other", "action": "purge_trash",
+  "title": "Очистить TRASH — 12 файлов старше 30 дней",
+  "rationale": "За месяц ни один не был восстановлен, MEMORY_backup keep как точка возврата",
+  "files": ["handoff_old_2026_03_01.md", "stale_plan_2026_02_15.md", "..."]
+}
+```
+
+### Custom other actions
+
+Должны иметь явный `description` поле и не использовать необычные tools.
 
 ## Required fields для всех
 

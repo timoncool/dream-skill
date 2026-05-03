@@ -22,7 +22,7 @@
 - **Reflective synthesis** — Phase Reflect surfaces patterns, drift, gaps, contradictions across files (extension over original autoDream)
 - **HTML UI with checkboxes** — modern dark theme, action-coded colors (green/red/blue), file chips, filter pills, progress bar, keyboard shortcuts
 - **Robust JSON-block contract** — proposals embedded as fenced JSON blocks in the report; wake parses with regex, immune to markdown formatting drift
-- **9 action types** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links`
+- **10 action types** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links` / `purge_trash` (TRASH → `_archive/` after 30 days)
 - **Append-only notes log** — survives context compaction; Phase Reflect reads from disk, not RAM
 - **Win11 Git Bash aware** — handles `pwd -W` for slug computation, `cygpath` for Python paths
 - **Safe by design** — `wake` only `mv` to `TRASH/` or `_archive/` (recoverable), never `rm`
@@ -110,7 +110,7 @@ Each proposal in the MD report is a fenced JSON block. Wake parses these via Pyt
 }
 ```
 
-See [`dream/references/action_types.md`](dream/references/action_types.md) for full schema of all 9 action types.
+See [`dream/references/action_types.md`](dream/references/action_types.md) for full schema of all 10 action types.
 
 ## Safety guarantees
 

@@ -22,7 +22,7 @@
 - **Рефлексивный синтез** — Phase Reflect находит паттерны, дрейф, пробелы и противоречия между файлами (расширение поверх оригинального autoDream)
 - **HTML UI с чекбоксами** — современная тёмная тема, цветовая кодировка действий (зелёный/красный/синий), чипы файлов, фильтр-пилюли, прогресс-бар, горячие клавиши
 - **Надёжный JSON-block контракт** — proposals встроены как fenced JSON блоки в отчёт; wake парсит regex-ом, защищён от любого markdown drift
-- **9 типов действий** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links`
+- **10 типов действий** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links` / `purge_trash` (TRASH → `_archive/` через 30 дней)
 - **Append-only лог заметок** — переживает компакшен контекста; Phase Reflect читает с диска, не из RAM
 - **Win11 Git Bash совместимость** — `pwd -W` для slug, `cygpath` для путей в Python
 - **Безопасен по дизайну** — `wake` делает `mv` только в `TRASH/` или `_archive/` (восстанавливаемо), никогда `rm`
@@ -110,7 +110,7 @@ wake/
 }
 ```
 
-Полная схема всех 9 типов действий — в [`dream/references/action_types.md`](dream/references/action_types.md).
+Полная схема всех 10 типов действий — в [`dream/references/action_types.md`](dream/references/action_types.md).
 
 ## Гарантии безопасности
 
