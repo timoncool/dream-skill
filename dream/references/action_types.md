@@ -89,18 +89,18 @@ Write новый memory файл.
 }
 ```
 
-## Skills actions (category: "skills", префикс S — интеграция second-nature)
+## Skills actions (category: "skills", префикс S — интеграция satori)
 
-Работают только если существует `~/.claude/second-nature/staging/` (MCP-луп самообучения).
+Работают только если существует `~/.claude/satori/staging/` (MCP-луп самообучения).
 
 ### `promote_skill`
 Активировать staged-драфт скилла.
-- **name** (string) — имя драфта в `~/.claude/second-nature/staging/<name>/SKILL.md`
+- **name** (string) — имя драфта в `~/.claude/satori/staging/<name>/SKILL.md`
 - **dest_dir** (string, optional) — куда класть; default: pinned_project драфта из БД лупа (`<pinned>/.claude/skills/`), иначе `~/.claude/skills/`
 
 ### `retire_skill`
 Убрать протухший/мусорный драфт из staging в архив лупа (mv, обратимо).
-- **name** (string) — имя драфта. Wake: mv `staging/<name>` → `~/.claude/second-nature/archive/<name>-<date>`.
+- **name** (string) — имя драфта. Wake: mv `staging/<name>` → `~/.claude/satori/archive/<name>-<date>`.
 
 ## Other (category: "other")
 

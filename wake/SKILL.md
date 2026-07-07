@@ -151,7 +151,7 @@ Verify: каждый ID в `selected` есть в map. Если нет — warn,
 
 **Auto mode:** если choices JSON содержит `"auto": true` **и** `"validator_verdicts"` — gate информационный: покажи summary + вердикты валидатора и применяй БЕЗ ожидания подтверждения. Перед apply перепроверь автостоп-лист: item с `[UNVERIFIED]` в title, action=`delete`, `purge_trash` или `promote_skill` в selected из auto-JSON → исключи, добавь в `skipped[]` с reason `"auto mode: manual-only action"`. Если `auto: true` без `validator_verdicts` — считай JSON подозрительным, работай как в ручном режиме (жди подтверждения). В Wake log добавь строку `Gate: auto (validator)`.
 
-**Full auto** (`"auto_level": "full"` в choices JSON): автостоп-лист для actions снимается — `delete`, `purge_trash`, `promote_skill`, `retire_skill` из selected применяются. Обязательная компенсация для `delete`: **перед** очисткой контента скопируй файл в корзину — `cp "$MEMORY_DIR_BASH/<target>" "$MEMORY_DIR_BASH/TRASH/<target>.pre-delete-$REPORT_DATE.md"` — и только потом Edit. Для `promote_skill`: путь активации ОБЯЗАТЕЛЬНО в Wake log (строка `Promoted skills: <name> → <dest>`) — откат скилла = mv его папки из dest обратно в `~/.claude/second-nature/staging/`. Айтемы с `[UNVERIFIED]` в title исключаются даже в full auto (валидатор не имел права их одобрить — попадание в selected означает сбой, reason `"full auto: [UNVERIFIED] must not be auto-approved"`). В Wake log — `Gate: full-auto (validator)`.
+**Full auto** (`"auto_level": "full"` в choices JSON): автостоп-лист для actions снимается — `delete`, `purge_trash`, `promote_skill`, `retire_skill` из selected применяются. Обязательная компенсация для `delete`: **перед** очисткой контента скопируй файл в корзину — `cp "$MEMORY_DIR_BASH/<target>" "$MEMORY_DIR_BASH/TRASH/<target>.pre-delete-$REPORT_DATE.md"` — и только потом Edit. Для `promote_skill`: путь активации ОБЯЗАТЕЛЬНО в Wake log (строка `Promoted skills: <name> → <dest>`) — откат скилла = mv его папки из dest обратно в `~/.claude/satori/staging/`. Айтемы с `[UNVERIFIED]` в title исключаются даже в full auto (валидатор не имел права их одобрить — попадание в selected означает сбой, reason `"full auto: [UNVERIFIED] must not be auto-approved"`). В Wake log — `Gate: full-auto (validator)`.
 
 Почему один gate а не каждый item: пользователь уже подумал галочками (или за него подумал независимый валидатор в auto mode). Дополнительный approve раздражает. Но summary важен — могло измениться что-то с момента dream.
 
@@ -246,13 +246,13 @@ mkdir -p "$CWD_BASH/_archive/trash-purged-$REPORT_DATE"   # для purge_trash i
 - Edit `MEMORY.md`
 - Если `section` не найден → warning, skip, продолжай
 
-#### action: promote_skill (second-nature)
-- Source: `~/.claude/second-nature/staging/<name>/SKILL.md`. Нет → failed.
-- Dest: `dest_dir` из proposal; иначе pinned_project из БД лупа (`python -c` read-only: `SELECT pinned_project FROM skill_usage WHERE name=?` в `~/.claude/second-nature/state.db`) → `<pinned>/.claude/skills/<name>/`; иначе `~/.claude/skills/<name>/`.
-- Существующий dest → backup в `~/.claude/second-nature/backups/` (cp), потом cp source → dest. Скилл активен после рестарта Claude Code.
+#### action: promote_skill (satori)
+- Source: `~/.claude/satori/staging/<name>/SKILL.md`. Нет → failed.
+- Dest: `dest_dir` из proposal; иначе pinned_project из БД лупа (`python -c` read-only: `SELECT pinned_project FROM skill_usage WHERE name=?` в `~/.claude/satori/state.db`) → `<pinned>/.claude/skills/<name>/`; иначе `~/.claude/skills/<name>/`.
+- Существующий dest → backup в `~/.claude/satori/backups/` (cp), потом cp source → dest. Скилл активен после рестарта Claude Code.
 
-#### action: retire_skill (second-nature)
-- `mv ~/.claude/second-nature/staging/<name> ~/.claude/second-nature/archive/<name>-<date>` (mkdir -p archive). Source нет → warning, skip, продолжай.
+#### action: retire_skill (satori)
+- `mv ~/.claude/satori/staging/<name> ~/.claude/satori/archive/<name>-<date>` (mkdir -p archive). Source нет → warning, skip, продолжай.
 
 #### action: purge_trash (второй уровень корзины)
 - Для каждого file в `files`:
@@ -361,8 +361,8 @@ Skipped:
   - `cp -r <memory_dir>/. <cwd>/_archive/wake-backup-*/` — обязательный snapshot перед apply (и pre-rollback snapshot в Rollback)
   - `cp` в `<memory_dir>/TRASH/` как pre-delete backup в full auto
   - `cp -r` из `_archive/wake-backup-*/` обратно в `<memory_dir>/` — только в Rollback режиме
-  - `cp` из `~/.claude/second-nature/staging/` в skills-папку + backup существующего в `~/.claude/second-nature/backups/` — только для promote_skill
-- `mv` дополнительно: `~/.claude/second-nature/staging/<name>` → `~/.claude/second-nature/archive/` — только для retire_skill
+  - `cp` из `~/.claude/satori/staging/` в skills-папку + backup существующего в `~/.claude/satori/backups/` — только для promote_skill
+- `mv` дополнительно: `~/.claude/satori/staging/<name>` → `~/.claude/satori/archive/` — только для retire_skill
 - `mkdir -p` — для dest директорий перед mv/cp
 
 **Запрещено:**
@@ -384,7 +384,7 @@ Skipped:
 2. Показать в чат: какой snapshot, его дата, сколько файлов, какие Wake log'и были после него.
 3. **Pre-rollback snapshot текущего состояния** (откат тоже обратим): `cp -r "$MEMORY_DIR_BASH/." "$CWD_BASH/_archive/wake-backup-$(date +%Y-%m-%d-%H%M%S)-pre-rollback/"`
 4. Восстановить: `cp -r "<snapshot>/." "$MEMORY_DIR_BASH/"` — файлы перезаписываются содержимым snapshot'а. Файлы, созданные ПОСЛЕ snapshot'а (например `create_new` из apply), останутся на диске — перечисли их юзеру, пусть решит (они в snapshot'е отсутствуют, автоматически их не удаляй — no-rm правило).
-4b. **Скиллы, активированные этим wake'ом** (строки `Promoted skills:` в Wake log отчёта): mv папку скилла из dest обратно в `~/.claude/second-nature/staging/<name>` (если в dest был перезаписан старый скилл — восстановить его из `~/.claude/second-nature/backups/`). Retired-драфты: mv из `~/.claude/second-nature/archive/<name>-<date>` обратно в staging.
+4b. **Скиллы, активированные этим wake'ом** (строки `Promoted skills:` в Wake log отчёта): mv папку скилла из dest обратно в `~/.claude/satori/staging/<name>` (если в dest был перезаписан старый скилл — восстановить его из `~/.claude/satori/backups/`). Retired-драфты: mv из `~/.claude/satori/archive/<name>-<date>` обратно в staging.
 5. Добавить в `DREAM-REPORT-<date>.md` блок `## Rollback log — <timestamp>` (какой snapshot восстановлен, из-за чего).
 6. Финал: сколько файлов восстановлено, где лежит pre-rollback snapshot, список оставшихся новых файлов.
 
