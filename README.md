@@ -257,11 +257,11 @@ I build open-source software and do AI research. Most of what I create is free a
 
 ## Star History
 
-<a href="https://star-history.com/#timoncool/dream-skill&Date">
+<a href="https://github.com/timoncool/dream-skill/stargazers">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=timoncool/dream-skill&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=timoncool/dream-skill&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=timoncool/dream-skill&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="docs/stars-dark.svg" />
+   <source media="(prefers-color-scheme: light)" srcset="docs/stars-light.svg" />
+   <img alt="Star History Chart" src="docs/stars-light.svg" />
  </picture>
 </a>
 
