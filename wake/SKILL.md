@@ -113,7 +113,7 @@ for i, block in enumerate(blocks):
 Получишь массив объектов с обязательными полями:
 - `id` (string, например "M1")
 - `category` ("memory" | "notes" | "index" | "other")
-- `action` (один из: update, merge, delete, soft_delete, create_new, extract, remove_links, shorten_lines, add_links, purge_trash)
+- `action` (один из: update, merge, delete, soft_delete, create_new, extract, remove_links, shorten_lines, add_links, promote_skill, retire_skill, purge_trash)
 - Action-specific поля (см. dream/SKILL.md секцию "Action types")
 
 Построй map `{id: proposal}`.
@@ -190,7 +190,7 @@ mkdir -p "$CWD_BASH/_archive/trash-purged-$REPORT_DATE"   # для purge_trash i
 # Per-project TRASH dirs создавай on-demand при apply (не все проекты в selected)
 ```
 
-Для каждого item в `selected`, в порядке Apply order recommendation из MD-отчёта (по умолчанию M → N → I → O):
+Для каждого item в `selected`, в порядке Apply order recommendation из MD-отчёта (по умолчанию M → N → I → S → O):
 
 #### action: update
 - Read `target` файл
@@ -245,6 +245,14 @@ mkdir -p "$CWD_BASH/_archive/trash-purged-$REPORT_DATE"   # для purge_trash i
   - Вставить `line` непосредственно после строки заголовка
 - Edit `MEMORY.md`
 - Если `section` не найден → warning, skip, продолжай
+
+#### action: promote_skill (second-nature)
+- Source: `~/.claude/second-nature/staging/<name>/SKILL.md`. Нет → failed.
+- Dest: `dest_dir` из proposal; иначе pinned_project из БД лупа (`python -c` read-only: `SELECT pinned_project FROM skill_usage WHERE name=?` в `~/.claude/second-nature/state.db`) → `<pinned>/.claude/skills/<name>/`; иначе `~/.claude/skills/<name>/`.
+- Существующий dest → backup в `~/.claude/second-nature/backups/` (cp), потом cp source → dest. Скилл активен после рестарта Claude Code.
+
+#### action: retire_skill (second-nature)
+- `mv ~/.claude/second-nature/staging/<name> ~/.claude/second-nature/archive/<name>-<date>` (mkdir -p archive). Source нет → warning, skip, продолжай.
 
 #### action: purge_trash (второй уровень корзины)
 - Для каждого file в `files`:
@@ -353,6 +361,8 @@ Skipped:
   - `cp -r <memory_dir>/. <cwd>/_archive/wake-backup-*/` — обязательный snapshot перед apply (и pre-rollback snapshot в Rollback)
   - `cp` в `<memory_dir>/TRASH/` как pre-delete backup в full auto
   - `cp -r` из `_archive/wake-backup-*/` обратно в `<memory_dir>/` — только в Rollback режиме
+  - `cp` из `~/.claude/second-nature/staging/` в skills-папку + backup существующего в `~/.claude/second-nature/backups/` — только для promote_skill
+- `mv` дополнительно: `~/.claude/second-nature/staging/<name>` → `~/.claude/second-nature/archive/` — только для retire_skill
 - `mkdir -p` — для dest директорий перед mv/cp
 
 **Запрещено:**

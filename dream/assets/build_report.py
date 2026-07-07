@@ -41,6 +41,7 @@ CATEGORY_NAMES = {
     'M': 'Memory consolidation',
     'N': 'Notes integration',
     'I': 'MEMORY.md index rebuild',
+    'S': 'Skills (second-nature)',
     'O': 'Other',
 }
 
@@ -55,6 +56,8 @@ ACTION_REQUIRED_FIELDS = {
     'remove_links': ['links_to_remove'],
     'shorten_lines': ['lines_to_shorten'],
     'add_links': ['links_to_add'],
+    'promote_skill': ['name'],
+    'retire_skill': ['name'],
     'purge_trash': ['files'],
 }
 
@@ -102,7 +105,7 @@ def build_md(payload):
         cat = p['id'][0]
         by_cat.setdefault(cat, []).append(p)
 
-    for cat in ['M', 'N', 'I', 'O']:
+    for cat in ['M', 'N', 'I', 'S', 'O']:
         if cat not in by_cat:
             continue
         lines.append("")
@@ -149,6 +152,8 @@ def build_html(payload, template_path):
         'remove_links': 'Удалить ссылки из индекса',
         'shorten_lines': 'Сократить строки индекса',
         'add_links': 'Добавить ссылки в индекс',
+        'promote_skill': 'Активировать скилл-драфт',
+        'retire_skill': 'Скилл-драфт в архив лупа',
         'purge_trash': 'Очистить TRASH (>30 дней)',
     }
     # Semantic class for color coding + icon (modern UI)
@@ -162,10 +167,13 @@ def build_html(payload, template_path):
         'remove_links': ('neutral', '−'),
         'shorten_lines': ('neutral', '✂'),
         'add_links': ('neutral', '+'),
+        'promote_skill': ('constructive', '⤴'),
+        'retire_skill': ('destructive', '🗄'),
         'purge_trash': ('destructive', '🗑'),
     }
     KEY_LABELS = {
         'action': 'Действие',
+        'name': 'Драфт',
         'rationale': 'Зачем',
         'files': 'Файлы',
         'target': 'Куда',

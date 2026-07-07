@@ -24,6 +24,7 @@ description: Режим сна Claude — РЕФЛЕКСИВНОЕ ЧТЕНИЕ 
 | Проекты в cwd (подпапки с маркерами) | **Read only** (README + docs/) |
 | JSONL транскрипты сессий | **Narrow grep only** (не читать целиком) |
 | Глобальный `~/.claude/skills/` каталог | **List only** (orientation, не Read контента) |
+| Staging second-nature (`~/.claude/second-nature/staging/`) + его state.db | **Read only** (если есть — Phase 2 п.7 Skill harvest) |
 | Код, исходники, JSON dumps, логи | Не трогаем |
 
 **Единственная Write-операция:** запись двух файлов отчёта в `<cwd>/`.
@@ -275,7 +276,9 @@ Read `MEMORY.md` целиком — твой index, маленький. (Read co
    grep -rn "<narrow term>" "$PROJECTS_DIR_BASH/" --include="*.jsonl" | tail -50
    ```
 
-7. **TRASH purge candidates** — для каждого файла в `memory/TRASH/` с mtime >30 дней (из find в Phase 1) собери список. В Phase 4 это станет proposal `id=O1, action=purge_trash` (см. `references/action_types.md`). Пропусти если TRASH пустой или нет старых файлов. **Сохрани файлы которые юзер явно помечал как точки возврата** (например `MEMORY_backup_*`) — упомяни в rationale что keep.
+7. **Skill harvest (second-nature)** — если существует `~/.claude/second-nature/staging/`: Read каждый `staging/*/SKILL.md` (они маленькие) + телеметрия read-only: `python -c` по `~/.claude/second-nature/state.db` (`SELECT name,use_count,last_used,staged_ts,pinned_project FROM skill_usage`). Для каждого драфта — proposal категории S (см. action_types.md): `promote_skill` (триггер внятный `Use when...`, содержимое проверяемо, дубля в активных скиллах нет — grep по `~/.claude/skills` и `D:\Projects\claude-skills`) / `retire_skill` (протух >30д без использования, дубль активного, мусор) / keep. Evidence policy действует и здесь.
+
+8. **TRASH purge candidates** — для каждого файла в `memory/TRASH/` с mtime >30 дней (из find в Phase 1) собери список. В Phase 4 это станет proposal `id=O1, action=purge_trash` (см. `references/action_types.md`). Пропусти если TRASH пустой или нет старых файлов. **Сохрани файлы которые юзер явно помечал как точки возврата** (например `MEMORY_backup_*`) — упомяни в rationale что keep.
 
 **Лимита нет.** Read EVERYTHING. Контекст-управление через notes log — не пропускай ни одного файла, не пропускай ни одной log-записи.
 

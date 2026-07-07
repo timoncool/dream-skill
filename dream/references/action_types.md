@@ -89,6 +89,19 @@ Write новый memory файл.
 }
 ```
 
+## Skills actions (category: "skills", префикс S — интеграция second-nature)
+
+Работают только если существует `~/.claude/second-nature/staging/` (MCP-луп самообучения).
+
+### `promote_skill`
+Активировать staged-драфт скилла.
+- **name** (string) — имя драфта в `~/.claude/second-nature/staging/<name>/SKILL.md`
+- **dest_dir** (string, optional) — куда класть; default: pinned_project драфта из БД лупа (`<pinned>/.claude/skills/`), иначе `~/.claude/skills/`
+
+### `retire_skill`
+Убрать протухший/мусорный драфт из staging в архив лупа (mv, обратимо).
+- **name** (string) — имя драфта. Wake: mv `staging/<name>` → `~/.claude/second-nature/archive/<name>-<date>`.
+
 ## Other (category: "other")
 
 ### `purge_trash`
@@ -114,8 +127,8 @@ Write новый memory файл.
 
 ## Required fields для всех
 
-- **id** (string) — `M1`, `N1`, `I1`, `O1` etc. Префикс = категория.
-- **category** (string) — `memory` | `notes` | `index` | `other`
+- **id** (string) — `M1`, `N1`, `I1`, `S1`, `O1` etc. Префикс = категория.
+- **category** (string) — `memory` | `notes` | `index` | `skills` | `other`
 - **action** (string) — один из выше
 - **title** (string) — короткое название для UI
 - **rationale** (string) — почему это предлагается
