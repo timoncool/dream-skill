@@ -4,6 +4,7 @@
 
 **Парные Claude Code скиллы для безопасной консолидации памяти — читаем, рефлексируем, применяем только то, что отметили галочкой.**
 
+[![Status](https://img.shields.io/badge/status-beta-orange?style=flat-square)](#-бета-дисклеймер)
 [![License](https://img.shields.io/github/license/timoncool/dream-skill?style=flat-square)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/timoncool/dream-skill?style=flat-square)](https://github.com/timoncool/dream-skill/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/timoncool/dream-skill?style=flat-square)](https://github.com/timoncool/dream-skill/commits)
@@ -15,6 +16,9 @@
 </div>
 
 ---
+
+> ### ⚠️ Бета-дисклеймер
+> Это **бета**, которую я делаю для себя и делюсь с сообществом как есть. Скиллы читают и (после твоего одобрения) **меняют память Claude Code** — прочитай SKILL.md, пойми, что они делают, и просматривай отчёт перед применением. У меня работает; за твой сетап **ответственности не несу** — ни за потерянные заметки, ни за запутавшихся агентов, ни за экзистенциальные кризисы. Снапшоты и откат есть — пользуйся.
 
 `dream` обходит папку памяти Claude Code, заметки в рабочей папке и README проектов, после чего синтезирует предложения по консолидации в HTML-отчёт с тёмной темой и чекбоксами. `wake` читает твой выбор и применяет только то, что ты явно отметил — никогда не меняет файлы вне выбранных, никогда не использует `rm`. Вдохновлён утечкой autoDream из внутренностей Claude Code, но с явным human approval gate, которого в оригинале нет.
 

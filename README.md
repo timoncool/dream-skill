@@ -4,6 +4,7 @@
 
 **Two paired Claude Code skills for safe memory consolidation — read, reflect, then apply only what you check.**
 
+[![Status](https://img.shields.io/badge/status-beta-orange?style=flat-square)](#-beta-disclaimer)
 [![License](https://img.shields.io/github/license/timoncool/dream-skill?style=flat-square)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/timoncool/dream-skill?style=flat-square)](https://github.com/timoncool/dream-skill/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/timoncool/dream-skill?style=flat-square)](https://github.com/timoncool/dream-skill/commits)
@@ -15,6 +16,9 @@
 </div>
 
 ---
+
+> ### ⚠️ Beta disclaimer
+> This is **beta software** I build for myself and share with the community as-is. These skills read and (after your approval) **modify your Claude Code memory** — read the SKILL.md files, understand what they do, and review the report before applying anything. It works on my setup; I can't guarantee yours and **take no responsibility** for lost notes, confused agents or existential crises. Snapshots and rollback exist — use them.
 
 `dream` walks your Claude Code memory directory, scattered notes and project READMEs, then synthesizes consolidation proposals into a dark-theme HTML report with checkboxes. `wake` reads your selection and applies only the items you explicitly checked — never modifies anything outside selected files, never uses `rm`. Inspired by the leaked autoDream from Claude Code internals, but with explicit human approval gate that the original lacks.
 
