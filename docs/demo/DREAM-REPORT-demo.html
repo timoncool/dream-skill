@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dream Report — 2026-07-07</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============ Design tokens ============ */
+  :root {
+    /* Spacing — 4px grid */
+    --s-1: 0.25rem; --s-2: 0.5rem; --s-3: 0.75rem; --s-4: 1rem;
+    --s-5: 1.25rem; --s-6: 1.5rem; --s-8: 2rem; --s-10: 2.5rem;
+    --s-12: 3rem; --s-16: 4rem;
+    /* Radius */
+    --r-xs: 4px; --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-pill: 999px;
+    /* Motion */
+    --t-fast: 0.12s cubic-bezier(.4,0,.2,1);
+    --t-base: 0.18s cubic-bezier(.4,0,.2,1);
+    --t-slow: 0.3s cubic-bezier(.4,0,.2,1);
+    /* Semantic — neutral info (insights) */
+    --info: #7aa3ff;
+  }
+
+  /* ============ Dark theme (default) ============ */
+  [data-theme="dark"] {
+    --bg: #0a0c10;
+    --bg-elev: #12151c;
+    --bg-card: #181c25;
+    --bg-hover: #1d212c;
+    --bg-overlay: rgba(10, 12, 16, 0.85);
+    --border: #232834;
+    --border-strong: #313847;
+    --border-focus: #4a5468;
+    --text: #e8ecef;
+    --text-dim: #9ba4b1;
+    --text-faint: #5b6473;
+    --accent: #7aa3ff;
+    --accent-strong: #5b8def;
+    --accent-bg: rgba(122, 163, 255, 0.10);
+    --accent-border: rgba(122, 163, 255, 0.30);
+    --info-bg: rgba(122, 163, 255, 0.08);
+    --info-border: rgba(122, 163, 255, 0.22);
+    --good: #5cd388;
+    --good-bg: rgba(92, 211, 136, 0.10);
+    --good-border: rgba(92, 211, 136, 0.32);
+    --good-strip: #5cd388;
+    --warn: #f5c451;
+    --warn-bg: rgba(245, 196, 81, 0.10);
+    --warn-border: rgba(245, 196, 81, 0.30);
+    --danger: #ef6b6b;
+    --danger-bg: rgba(239, 107, 107, 0.10);
+    --danger-border: rgba(239, 107, 107, 0.32);
+    --danger-strip: #ef6b6b;
+    --neutral-strip: #5b8def;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.45);
+    --shadow-bar: 0 -8px 24px rgba(0,0,0,0.35);
+    --bg-blob-1: radial-gradient(ellipse 800px 600px at 80% -10%, rgba(91, 141, 239, 0.10), transparent 60%);
+    --bg-blob-2: radial-gradient(ellipse 600px 400px at -10% 30%, rgba(122, 163, 255, 0.06), transparent 60%);
+  }
+
+  /* ============ Light theme ============ */
+  [data-theme="light"] {
+    --bg: #f7f8fa;
+    --bg-elev: #ffffff;
+    --bg-card: #ffffff;
+    --bg-hover: #f0f3f7;
+    --bg-overlay: rgba(247, 248, 250, 0.92);
+    --border: #e4e7ec;
+    --border-strong: #cfd4dc;
+    --border-focus: #9ba4b1;
+    --text: #1a1f2c;
+    --text-dim: #525968;
+    --text-faint: #8b919c;
+    --accent: #3b6fde;
+    --accent-strong: #2c5cc7;
+    --accent-bg: rgba(59, 111, 222, 0.08);
+    --accent-border: rgba(59, 111, 222, 0.28);
+    --info-bg: rgba(59, 111, 222, 0.06);
+    --info-border: rgba(59, 111, 222, 0.20);
+    --good: #18a957;
+    --good-bg: rgba(24, 169, 87, 0.08);
+    --good-border: rgba(24, 169, 87, 0.28);
+    --good-strip: #18a957;
+    --warn: #c98a05;
+    --warn-bg: rgba(201, 138, 5, 0.08);
+    --warn-border: rgba(201, 138, 5, 0.28);
+    --danger: #d6342f;
+    --danger-bg: rgba(214, 52, 47, 0.07);
+    --danger-border: rgba(214, 52, 47, 0.28);
+    --danger-strip: #d6342f;
+    --neutral-strip: #3b6fde;
+    --shadow-sm: 0 1px 2px rgba(20,30,50,0.06);
+    --shadow-md: 0 4px 12px rgba(20,30,50,0.08);
+    --shadow-lg: 0 12px 32px rgba(20,30,50,0.12);
+    --shadow-bar: 0 -4px 16px rgba(20,30,50,0.08);
+    --bg-blob-1: radial-gradient(ellipse 800px 600px at 80% -10%, rgba(59, 111, 222, 0.08), transparent 60%);
+    --bg-blob-2: radial-gradient(ellipse 600px 400px at -10% 30%, rgba(59, 111, 222, 0.04), transparent 60%);
+  }
+
+  /* ============ Base ============ */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body { background: var(--bg); }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: var(--s-10) var(--s-6) var(--s-16);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+    font-feature-settings: "cv11", "ss01";
+    background-image: var(--bg-blob-1), var(--bg-blob-2);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    transition: background-color var(--t-slow), color var(--t-slow);
+  }
+  ::selection { background: var(--accent-bg); color: var(--text); }
+  code, pre, .mono { font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace; }
+
+  /* ============ Hero ============ */
+  .hero { margin-bottom: var(--s-8); }
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--s-4);
+    margin-bottom: var(--s-2);
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text) 0%, var(--text-dim) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .theme-toggle {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: var(--s-2) var(--s-3);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: all var(--t-base);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+  }
+  .theme-toggle:hover { border-color: var(--border-focus); color: var(--text); }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .hero .meta {
+    font-size: 0.85rem;
+    color: var(--text-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-4);
+  }
+  .hero .meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    max-width: 100%;
+  }
+  .hero .meta code {
+    background: var(--bg-elev);
+    padding: 2px 8px;
+    border-radius: var(--r-xs);
+    font-size: 0.95em;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    word-break: break-all;
+    max-width: 60ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .hero .meta code:hover { white-space: normal; max-width: none; }
+
+  /* ============ Insights ============ */
+  .insights {
+    background: linear-gradient(135deg, var(--info-bg) 0%, transparent 100%);
+    border: 1px solid var(--info-border);
+    border-left: 3px solid var(--info);
+    padding: var(--s-5) var(--s-6);
+    margin: var(--s-8) 0;
+    border-radius: var(--r-md);
+  }
+  .insights h2 {
+    margin: 0 0 var(--s-3);
+    color: var(--info);
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .insights ul { margin: 0; padding-left: var(--s-5); }
+  .insights li { margin: var(--s-2) 0; color: var(--text); }
+
+  /* ============ Stats ============ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--s-4);
+    margin: var(--s-8) 0 var(--s-4);
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: var(--s-4) var(--s-5);
+    transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-md);
+  }
+  .stat-card .label {
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--s-1);
+    display: flex;
+    align-items: center;
+    gap: var(--s-1);
+  }
+  .stat-card .value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .stat-card.accent .value { color: var(--accent); }
+  .stat-card.good .value { color: var(--good); }
+  .stat-card.warn .value { color: var(--warn); }
+  .stat-card.danger .value { color: var(--danger); }
+
+  /* ============ Filters ============ */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin: var(--s-6) 0 var(--s-4);
+    padding: var(--s-3);
+    background: var(--bg-elev);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+  }
+  .filter-pill {
+    padding: var(--s-2) var(--s-3);
+    border-radius: var(--r-pill);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: all var(--t-base);
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-family: inherit;
+  }
+  .filter-pill:hover { color: var(--text); border-color: var(--border-focus); }
+  .filter-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .filter-pill.active {
+    background: var(--accent-bg);
+    border-color: var(--accent-border);
+    color: var(--accent);
+  }
+  .filter-pill .count {
+    background: var(--bg);
+    padding: 1px 8px;
+    border-radius: var(--r-pill);
+    font-size: 0.85em;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .filter-pill.active .count { color: var(--accent); }
+  .filter-pill.divider { margin-left: auto; }
+
+  /* ============ Section header ============ */
+  .section { margin-top: var(--s-8); }
+  .section-header {
+    margin-bottom: var(--s-3);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+  .section-header h2 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .section-header .desc {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    flex: 1;
+  }
+  .section-header .select-all-btn {
+    background: transparent;
+    border: 1px dashed var(--border-strong);
+    color: var(--text-dim);
+    padding: var(--s-1) var(--s-3);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: inherit;
+    transition: all var(--t-base);
+  }
+  .section-header .select-all-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    border-style: solid;
+  }
+  .section-header .select-all-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ============ Proposal card ============ */
+  .proposal {
+    --strip-color: var(--neutral-strip);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--strip-color);
+    border-radius: var(--r-md);
+    margin: var(--s-3) 0;
+    overflow: hidden;
+    transition: border-color var(--t-base), background var(--t-base),
+                transform var(--t-base), box-shadow var(--t-base);
+    animation: fadeInUp 0.3s cubic-bezier(.4,0,.2,1) backwards;
+    animation-delay: calc(var(--idx, 0) * 30ms);
+  }
+  .proposal.constructive { --strip-color: var(--good-strip); }
+  .proposal.destructive  { --strip-color: var(--danger-strip); }
+  .proposal:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .proposal.checked {
+    background: linear-gradient(90deg, var(--accent-bg) 0%, var(--bg-card) 60%);
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 1px var(--accent-border), var(--shadow-md);
+  }
+  .proposal.constructive.checked {
+    background: linear-gradient(90deg, var(--good-bg) 0%, var(--bg-card) 60%);
+    border-color: var(--good-border);
+    box-shadow: 0 0 0 1px var(--good-border), var(--shadow-md);
+  }
+  .proposal.destructive.checked {
+    background: linear-gradient(90deg, var(--danger-bg) 0%, var(--bg-card) 60%);
+    border-color: var(--danger-border);
+    box-shadow: 0 0 0 1px var(--danger-border), var(--shadow-md);
+  }
+
+  .header-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s-3);
+    cursor: pointer;
+    user-select: none;
+    padding: var(--s-4) var(--s-5);
+  }
+  .header-row input[type=checkbox] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.3em;
+    height: 1.3em;
+    margin: 2px 0 0;
+    flex-shrink: 0;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 5px;
+    background: var(--bg-elev);
+    cursor: pointer;
+    position: relative;
+    transition: all var(--t-fast);
+  }
+  .header-row input[type=checkbox]:hover { border-color: var(--accent); }
+  .header-row input[type=checkbox]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .header-row input[type=checkbox]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .header-row input[type=checkbox]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px; top: 1px;
+    width: 5px; height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .proposal.constructive input[type=checkbox]:checked { background: var(--good); border-color: var(--good); }
+  .proposal.destructive input[type=checkbox]:checked { background: var(--danger); border-color: var(--danger); }
+
+  .header-text { flex: 1; min-width: 0; }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-bottom: var(--s-2);
+    flex-wrap: wrap;
+  }
+  .id-pill {
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    background: var(--bg-elev);
+    color: var(--text-dim);
+    padding: 2px 8px;
+    border-radius: var(--r-xs);
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    letter-spacing: 0.04em;
+  }
+  .action-badge {
+    padding: 2px 9px;
+    border-radius: var(--r-pill);
+    font-size: 0.74rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-1);
+    letter-spacing: 0.02em;
+  }
+  .action-badge.constructive {
+    background: var(--good-bg); color: var(--good); border: 1px solid var(--good-border);
+  }
+  .action-badge.destructive {
+    background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border);
+  }
+  .action-badge.neutral {
+    background: var(--info-bg); color: var(--accent); border: 1px solid var(--info-border);
+  }
+  .file-count-chip {
+    font-size: 0.73rem;
+    color: var(--text-faint);
+    background: var(--bg-elev);
+    padding: 2px 8px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  .project-chip {
+    font-size: 0.73rem;
+    color: var(--accent);
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    padding: 2px 8px;
+    border-radius: var(--r-pill);
+    font-family: 'JetBrains Mono', monospace;
+    max-width: 22ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .project-chip::before { content: '⌂'; margin-right: 4px; opacity: 0.6; }
+  .title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.4;
+    margin: 0;
+  }
+  .summary {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    margin: var(--s-1) 0 0;
+  }
+  .summary code {
+    background: var(--bg-elev);
+    color: var(--good);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  /* ============ Body ============ */
+  .body {
+    border-top: 1px solid var(--border);
+    padding: var(--s-4) var(--s-5) var(--s-5);
+    background: rgba(0,0,0,0.10);
+  }
+  [data-theme="light"] .body { background: rgba(0,0,0,0.02); }
+  .field {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: var(--s-4);
+    margin: var(--s-2) 0;
+    align-items: baseline;
+    font-size: 0.9rem;
+  }
+  .field .key {
+    color: var(--text-faint);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-top: 2px;
+  }
+  .field .val { color: var(--text); word-wrap: break-word; min-width: 0; }
+  .field .val ul { margin: 0; padding-left: var(--s-5); }
+  .field .val ul li { color: var(--text); margin: var(--s-1) 0; line-height: 1.5; }
+
+  .file-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); margin: 0; padding: 0; }
+  .file-chip {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 3px 10px;
+    border-radius: var(--r-xs);
+    font-size: 0.83rem;
+    font-family: 'JetBrains Mono', monospace;
+    word-break: break-all;
+    transition: border-color var(--t-fast);
+  }
+  .file-chip:hover { border-color: var(--border-focus); }
+
+  /* ============ Details ============ */
+  details {
+    margin-top: var(--s-2);
+    background: var(--bg-elev);
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  details summary {
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    user-select: none;
+    padding: var(--s-2) var(--s-3);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    transition: background var(--t-fast);
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before {
+    content: '';
+    width: 0; height: 0;
+    border-left: 4px solid var(--text-faint);
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    transition: transform var(--t-base);
+    flex-shrink: 0;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  details summary:hover { background: var(--bg-hover); color: var(--accent); }
+  details summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  details pre {
+    margin: 0;
+    padding: var(--s-3) var(--s-4);
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.55;
+  }
+  .preview-text {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    margin-top: var(--s-1);
+    font-style: italic;
+    padding: 0 var(--s-3) var(--s-2);
+  }
+
+  /* ============ Sticky controls ============ */
+  .controls {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border-top: 1px solid var(--border);
+    box-shadow: var(--shadow-bar);
+    padding: var(--s-3) var(--s-6);
+    z-index: 100;
+  }
+  .controls-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .controls .spacer { flex: 1; }
+  .controls button {
+    padding: var(--s-2) var(--s-4);
+    font-size: 0.88rem;
+    cursor: pointer;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-sm);
+    background: var(--bg-card);
+    color: var(--text);
+    transition: all var(--t-base);
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .controls button:hover { background: var(--bg-hover); border-color: var(--border-focus); }
+  .controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .controls button.primary {
+    background: var(--accent-strong);
+    color: white;
+    border-color: var(--accent-strong);
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(91, 141, 239, 0.30);
+  }
+  .controls button.primary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(91, 141, 239, 0.40);
+  }
+  .controls button.primary:active { transform: translateY(0); }
+  .controls button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .sel-display {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    color: var(--text-dim);
+    font-size: 0.86rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .sel-display b {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 1.05em;
+    transition: color var(--t-base);
+  }
+  .progress {
+    width: 140px;
+    height: 6px;
+    background: var(--border);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.25);
+  }
+  [data-theme="light"] .progress { box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+  .progress .bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-strong) 0%, var(--accent) 100%);
+    width: 0%;
+    transition: width var(--t-slow);
+    border-radius: var(--r-pill);
+  }
+
+  #status {
+    color: var(--text-dim);
+    font-size: 0.86rem;
+    transition: color var(--t-base);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 28ch;
+  }
+  #status.success { color: var(--good); }
+  #status.error   { color: var(--danger); }
+  #status.warn    { color: var(--warn); }
+
+  .kbd {
+    display: inline-block;
+    padding: 0 5px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76em;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .kbd-hint { color: var(--text-faint); font-size: 0.78rem; padding: 0 var(--s-1); }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--s-12) var(--s-4);
+    color: var(--text-faint);
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+    margin: var(--s-4) 0;
+  }
+
+  /* ============ Animations ============ */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.18); }
+  }
+  .stat-card .value.bump { animation: pulse 0.4s ease-out; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* ============ Print ============ */
+  @media print {
+    body { background: white; color: black; max-width: 100%; padding: 1em; }
+    .controls, .filters, .theme-toggle, .section-header .select-all-btn { display: none !important; }
+    .proposal { break-inside: avoid; box-shadow: none; border: 1px solid #ccc !important; }
+  }
+
+  /* ============ Mobile ============ */
+  @media (max-width: 720px) {
+    body { padding: var(--s-6) var(--s-4) var(--s-16); }
+    .hero h1 { font-size: 1.6rem; }
+    .field { grid-template-columns: 1fr; gap: 2px; }
+    .field .key { padding-top: 0; }
+    .controls-inner { flex-wrap: wrap; gap: var(--s-2); }
+    .progress { display: none; }
+    .kbd-hint { display: none; }
+  }
+
+  /* ============ Scrollbar ============ */
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border: 3px solid var(--bg); border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-focus); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-top">
+    <h1>Dream Report</h1>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme" title="Сменить тему (T)">
+      <span id="theme-icon">🌙</span>
+      <span id="theme-label">Dark</span>
+    </button>
+  </div>
+  <div class="meta">
+    <span>📅 <code>2026-07-07</code></span>
+    <span>🧠 Memory: <code title="C:/Users/demo/.claude/projects/D--Projects-Acme/memory">C:/Users/demo/.claude/projects/D--Projects-Acme/memory</code></span>
+    <span>📁 Cwd: <code title="D:/Projects/TEMP/dream-skill/docs/demo">D:/Projects/TEMP/dream-skill/docs/demo</code></span>
+    <span>👁 Reviewed: 38 memory + 6 cwd notes + 3 project READMEs / read in full: 47</span>
+  </div>
+</div>
+
+<div class="insights">
+  <h2>💡 Insights</h2>
+  <ul><li>Индекс отстал от корпуса: 7 файлов памяти без хука в MEMORY.md — невидимы для recall, хотя содержат живые правила.</li><li>Серия handoff&#x27;ов по платёжному шлюзу (4 файла за март) закрыта финальным отчётом — промежуточные дубли можно убирать.</li><li>Конфликт разрешим по свежести: правило «деплой по пятницам запрещён» (03-02) отменено более свежей записью «деплой в любой день после smoke-тестов» (05-14).</li><li>Записи со статусами («MR на ревью», «ждём ответ поддержки») протухают за 2-3 недели — правила почти не стареют.</li><li>Относительные даты в 5 файлах («на прошлой неделе», «вчера») — конвертировать в абсолютные, якорь mtime.</li></ul>
+</div>
+
+<div class="stats" id="stats" aria-label="Statistics"></div>
+
+<div class="filters" id="filters" role="group" aria-label="Filters"></div>
+<div class="filters" id="project-filters" role="group" aria-label="Project filters" style="display:none;margin-top:-0.5em"></div>
+
+<div id="proposals-container" aria-live="polite"></div>
+
+<div class="controls" role="region" aria-label="Selection controls">
+  <div class="controls-inner">
+    <button type="button" id="select-all-btn" title="Ctrl+A — выбрать всё видимое">Все</button>
+    <button type="button" id="deselect-btn" title="Esc — снять (повтор Esc — отменить)">Снять</button>
+    <span class="kbd-hint"><span class="kbd">Ctrl</span>+<span class="kbd">A</span> · <span class="kbd">Esc</span> · <span class="kbd">Ctrl</span>+<span class="kbd">S</span></span>
+    <span class="spacer"></span>
+    <div class="sel-display">
+      <span>Выбрано: <b id="sel-count">0</b> / <span id="total-count">0</span></span>
+      <div class="progress" aria-hidden="true"><div class="bar" id="progress-bar"></div></div>
+    </div>
+    <span id="status" role="status" aria-live="polite"></span>
+    <button type="button" class="primary" id="save-btn">💾 Save choices</button>
+  </div>
+</div>
+
+<script>
+const PROPOSALS = [{"id": "M1", "title": "Merge: 3 промежуточных handoff'а платёжки → финальный", "summary": "Слить файлы в один → handoff_payments_final_2026_03_21.md", "action_class": "constructive", "action_icon": "⊕", "action_label": "Слить файлы в один", "file_count": 3, "project": "", "primary": [{"label": "Файлы", "key": "files", "type": "list", "items": ["handoff_payments_2026_03_10.md", "handoff_payments_2026_03_14.md", "handoff_payments_2026_03_18.md"]}, {"label": "Куда", "key": "target", "type": "text", "text": "handoff_payments_final_2026_03_21.md"}, {"label": "Зачем", "key": "rationale", "type": "text", "text": "Серия завершена 03-21, финальный отчёт покрывает архитектуру целиком. Verified: уникальные факты перечислены, внешних ссылок на промежуточные файлы нет."}], "secondary": [], "collapsed": [{"label": "Что изменится", "key": "diff_preview", "type": "text", "text": "В финальный отчёт добавить секцию «Хронология» с уникальными фактами из промежуточных: лимит webhook-ретраев (03-10), причина отказа от polling (03-14), тест-карта песочницы (03-18)."}]}, {"id": "M2", "title": "Правило деплоя устарело — конфликт разрешён по свежести", "summary": "Обновить файл → feedback_no_friday_deploy.md", "action_class": "neutral", "action_icon": "✎", "action_label": "Обновить файл", "file_count": 0, "project": "", "primary": [{"label": "Куда", "key": "target", "type": "text", "text": "feedback_no_friday_deploy.md"}, {"label": "Зачем", "key": "rationale", "type": "text", "text": "Запись 05-14 новее и содержит прямое указание тимлида. Verified: обе записи прочитаны, противоречие однозначно."}], "secondary": [], "collapsed": [{"label": "Что изменится", "key": "diff_preview", "type": "text", "text": "Заменить «деплой по пятницам запрещён» на актуальное правило из feedback_deploy_after_smoke.md (05-14): деплой в любой день после зелёных smoke-тестов; пятница — с дежурным."}]}, {"id": "M3", "title": "Статусная заметка «MR #42 на ревью» — MR давно смержен", "summary": "Переместить в TRASH → project_checkout_mr42_status.md", "action_class": "destructive", "action_icon": "↩", "action_label": "Переместить в TRASH", "file_count": 1, "project": "", "primary": [{"label": "Файлы", "key": "files", "type": "list", "items": ["project_checkout_mr42_status.md"]}, {"label": "Зачем", "key": "rationale", "type": "text", "text": "Verified: ветка feature-checkout отсутствует в origin (git ls-remote), изменения в main с 04-02. Статусная запись без durable-фактов. Внешних ссылок 0."}], "secondary": [], "collapsed": []}, {"id": "M4", "title": "Новая запись: рецепт локального стенда из разрозненных заметок", "summary": "Создать новый файл → reference_local_stand_recipe.md", "action_class": "constructive", "action_icon": "✨", "action_label": "Создать новый файл", "file_count": 0, "project": "", "primary": [{"label": "Куда", "key": "target", "type": "text", "text": "reference_local_stand_recipe.md"}, {"label": "Зачем", "key": "rationale", "type": "text", "text": "Рецепт размазан по трём заметкам в рабочей папке — при потере папки знание пропадёт. Консолидация в память."}], "secondary": [{"label": "Тип memory", "key": "type", "type": "text", "text": "reference"}], "collapsed": [{"label": "Содержимое нового файла", "key": "content_template", "type": "text", "text": "Сводный рецепт запуска локального стенда acme-webshop: docker compose up + сид тест-данных + туннель для webhook'ов. Источник: 3 cwd-заметки марта."}]}, {"id": "N1", "title": "Извлечь чек-лист релиза из notes.md в память", "summary": "Извлечь часть в memory", "action_class": "constructive", "action_icon": "⇲", "action_label": "Извлечь часть в memory", "file_count": 0, "project": "", "primary": [{"label": "Зачем", "key": "rationale", "type": "text", "text": "Чек-лист используется каждый релиз, но живёт в черновике. Остальное в notes.md — сессионный мусор, не трогаем."}], "secondary": [{"label": "Источник", "key": "source_note", "type": "text", "text": "notes.md"}, {"label": "Цель", "key": "target_memory_file", "type": "text", "text": "reference_release_checklist.md"}, {"label": "Извлечь", "key": "what_to_extract", "type": "text", "text": "Секция «Перед релизом» (12 пунктов) — единственная durable-часть файла"}, {"label": "С источником", "key": "source_action", "type": "text", "text": "keep"}], "collapsed": []}, {"id": "I1", "title": "MEMORY.md: убрать 2 битые ссылки", "summary": "Удалить ссылки из индекса", "action_class": "neutral", "action_icon": "−", "action_label": "Удалить ссылки из индекса", "file_count": 0, "project": "", "primary": [{"label": "Зачем", "key": "rationale", "type": "text", "text": "Оба файла отсутствуют на диске (verified test -e) — ссылки ведут в никуда."}], "secondary": [], "collapsed": [{"label": "Ссылки", "key": "links_to_remove", "type": "list", "items": ["(handoff_old_auth_2026_01.md)", "(project_legacy_cart.md)"]}]}, {"id": "I2", "title": "MEMORY.md: сжать хук-простыню про API-шлюз (310 → 120 chars)", "summary": "Сократить строки индекса", "action_class": "neutral", "action_icon": "✂", "action_label": "Сократить строки индекса", "file_count": 0, "project": "", "primary": [{"label": "Зачем", "key": "rationale", "type": "text", "text": "Хук пересказывал содержимое файла. Детали остаются в recall-файле."}], "secondary": [], "collapsed": [{"label": "Строки", "key": "lines_to_shorten", "type": "list", "items": ["original: - [API-шлюз](reference_api_gateway.md) — все эндпоинты, лимиты, ретраи, схемы ошибок, примеры curl, песочница, боевые ключи, мониторинг, алерты | replacement: - [API-шлюз](reference_api_gateway.md) — эндпоинты, лимиты, ретраи; когда интегрируешь внешний сервис"]}]}, {"id": "I3", "title": "MEMORY.md: хуки для 4 orphan-файлов", "summary": "Добавить ссылки в индекс", "action_class": "neutral", "action_icon": "+", "action_label": "Добавить ссылки в индекс", "file_count": 0, "project": "", "primary": [{"label": "Зачем", "key": "rationale", "type": "text", "text": "4 живых файла без точки входа в индексе — невидимы для будущих сессий."}], "secondary": [], "collapsed": [{"label": "Ссылки", "key": "links_to_add", "type": "list", "items": ["section: ## Feedback | line: - [Никогда не менять схему БД без миграции](feedback_no_manual_schema.md) | [Фичефлаги вместо веток](feedback_feature_flags.md)", "section: ## References | line: - [Тест-карты песочницы](reference_sandbox_cards.md) | [Регламент дежурств](reference_oncall_rules.md)"]}]}, {"id": "O1", "title": "TRASH: вынести в архив 6 файлов старше 30 дней", "summary": "Очистить TRASH (>30 дней) → old_sprint_notes_2026_02.md", "action_class": "destructive", "action_icon": "🗑", "action_label": "Очистить TRASH (>30 дней)", "file_count": 6, "project": "", "primary": [{"label": "Файлы", "key": "files", "type": "list", "items": ["old_sprint_notes_2026_02.md", "draft_plan_v1.md", "draft_plan_v2.md", "handoff_prototype_2026_02_11.md", "tmp_research_dump.md", "meeting_2026_02_20.md"]}, {"label": "Зачем", "key": "rationale", "type": "text", "text": "Лежат в корзине с февраля, ни один не восстанавливался. mv в _archive — recoverable."}], "secondary": [], "collapsed": []}];
+const REPORT_DATE = "2026-07-07";
+const REPORT_CWD  = "D:/Projects/TEMP/dream-skill/docs/demo";
+const REPORT_MODE = "cwd";   // 'cwd' or 'global'
+
+// Namespaced storage key — cwd hash + date
+function hashStr(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return Math.abs(h).toString(36);
+}
+const STORAGE_KEY = 'dream-choices-' + hashStr(REPORT_CWD) + '-' + REPORT_DATE;
+const THEME_KEY   = 'dream-theme';
+const UNDO_KEY    = STORAGE_KEY + '-undo';
+
+const CATEGORY_NAMES = {
+  M: 'Память', N: 'Заметки', I: 'Индекс MEMORY.md', O: 'Прочее'
+};
+const CATEGORY_DESC = {
+  M: 'Изменения в memory-файлах: merge / delete / create_new',
+  N: 'Извлечение контента из cwd-заметок в память',
+  I: 'Правки индекса MEMORY.md',
+  O: 'Прочие операции'
+};
+
+// === Source-of-truth: Set, NOT DOM ===
+const selected = new Set();
+let activeFilter = 'all';
+let activeProject = 'all';   // global mode only
+let undoSnapshot = null;
+
+// Build project list (global mode)
+const PROJECTS = [...new Set(PROPOSALS.map(p => p.project).filter(Boolean))].sort();
+const HAS_PROJECTS = REPORT_MODE === 'global' && PROJECTS.length > 0;
+
+// ---------- helpers ----------
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function isFileChip(s) {
+  return /^[\w\-./]+\.(md|json|txt|html|js|py|sh|sql|yml|yaml|ts|tsx|jsx|css|toml|lock)$/.test(s) && s.length < 80;
+}
+function visibleProposals() { return PROPOSALS.filter(filterMatches); }
+function filterMatches(p) {
+  // Project filter (global mode) — AND with category/action filter
+  if (HAS_PROJECTS && activeProject !== 'all' && p.project !== activeProject) return false;
+  if (activeFilter === 'all') return true;
+  if (['M','N','I','O'].includes(activeFilter)) return p.id[0] === activeFilter;
+  if (['constructive','destructive','neutral'].includes(activeFilter)) return p.action_class === activeFilter;
+  return true;
+}
+
+// ---------- storage ----------
+function persistSelection() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...selected])); } catch(e) {}
+}
+function restoreSelection() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    JSON.parse(raw).forEach(id => selected.add(id));
+  } catch(e) {}
+}
+
+// ---------- render ----------
+function renderField(f) {
+  let val = '';
+  if (f.type === 'list') {
+    const allFiles = f.items.length > 0 && f.items.every(isFileChip);
+    if (allFiles) {
+      val = '<div class="file-chips">' +
+        f.items.map(x => '<span class="file-chip">' + escHtml(x) + '</span>').join('') +
+        '</div>';
+    } else {
+      val = '<ul>' + f.items.map(x => '<li>' + escHtml(x) + '</li>').join('') + '</ul>';
+    }
+  } else if (f.type === 'longtext') {
+    val = '<details><summary>Показать полностью (' + f.full.length + ' chars)</summary>' +
+          '<pre>' + escHtml(f.full) + '</pre></details>' +
+          '<div class="preview-text">' + escHtml(f.preview) + '</div>';
+  } else {
+    val = escHtml(f.text);
+  }
+  return '<div class="field"><div class="key">' + escHtml(f.label) +
+         '</div><div class="val">' + val + '</div></div>';
+}
+
+function renderFilters() {
+  const filtersDiv = document.getElementById('filters');
+  // Counts respect project filter (so user sees what's left after picking a project)
+  const filteredByProject = HAS_PROJECTS && activeProject !== 'all'
+    ? PROPOSALS.filter(p => p.project === activeProject)
+    : PROPOSALS;
+  const counts = { M:0, N:0, I:0, O:0, constructive:0, destructive:0 };
+  for (const p of filteredByProject) {
+    counts[p.id[0]]++;
+    if (counts[p.action_class] != null) counts[p.action_class]++;
+  }
+  let html = pill('all', 'Все', filteredByProject.length);
+  for (const cat of ['M','N','I','O']) {
+    if (counts[cat]) html += pill(cat, cat + ' · ' + CATEGORY_NAMES[cat], counts[cat]);
+  }
+  if (counts.constructive)
+    html += pill('constructive', '✨ Создание/мерж', counts.constructive, true);
+  if (counts.destructive)
+    html += pill('destructive', '⌫ Удаление', counts.destructive);
+  filtersDiv.innerHTML = html;
+
+  filtersDiv.querySelectorAll('.filter-pill').forEach(p => {
+    p.onclick = () => { activeFilter = p.dataset.filter; renderFilters(); renderProposals(); };
+  });
+
+  // Project filter pills (global mode only, separate row)
+  const projDiv = document.getElementById('project-filters');
+  if (HAS_PROJECTS) {
+    const projCounts = {};
+    for (const p of PROPOSALS) projCounts[p.project] = (projCounts[p.project] || 0) + 1;
+    let projHtml = projPill('all', '⌂ Все проекты', PROPOSALS.length);
+    for (const proj of PROJECTS) projHtml += projPill(proj, proj, projCounts[proj]);
+    projDiv.innerHTML = projHtml;
+    projDiv.style.display = '';
+    projDiv.querySelectorAll('.filter-pill').forEach(p => {
+      p.onclick = () => {
+        activeProject = p.dataset.project;
+        activeFilter = 'all';   // reset category to avoid empty state confusion
+        renderFilters();
+        renderProposals();
+      };
+    });
+  } else {
+    projDiv.style.display = 'none';
+  }
+
+  function pill(filter, label, count, divider) {
+    const cls = 'filter-pill' + (activeFilter === filter ? ' active' : '') + (divider ? ' divider' : '');
+    return '<button type="button" class="' + cls + '" data-filter="' + filter + '">' +
+           label + ' <span class="count">' + count + '</span></button>';
+  }
+  function projPill(proj, label, count) {
+    const cls = 'filter-pill' + (activeProject === proj ? ' active' : '');
+    return '<button type="button" class="' + cls + '" data-project="' + escHtml(proj) + '">' +
+           escHtml(label) + ' <span class="count">' + count + '</span></button>';
+  }
+}
+
+function renderProposals() {
+  const container = document.getElementById('proposals-container');
+  const visible = visibleProposals();
+  const byCat = {};
+  for (const p of visible) (byCat[p.id[0]] = byCat[p.id[0]] || []).push(p);
+
+  if (visible.length === 0) {
+    container.innerHTML = '<div class="empty-state">Под фильтр <b>' + escHtml(activeFilter) + '</b> нет предложений</div>';
+    return;
+  }
+
+  let html = '';
+  let idx = 0;
+  for (const cat of ['M','N','I','O']) {
+    if (!byCat[cat]) continue;
+    html += '<div class="section">';
+    html += '<div class="section-header">';
+    html += '<h2>' + cat + ' — ' + escHtml(CATEGORY_NAMES[cat]) + '</h2>';
+    html += '<span class="desc">' + escHtml(CATEGORY_DESC[cat] || '') + ' · ' + byCat[cat].length + ' предложений</span>';
+    html += '<button type="button" class="select-all-btn" data-cat="' + cat + '">Выбрать все ' + cat + '</button>';
+    html += '</div>';
+    for (const p of byCat[cat]) {
+      const isChecked = selected.has(p.id);
+      html += '<div class="proposal ' + p.action_class + (isChecked ? ' checked' : '') +
+              '" data-id="' + p.id + '" style="--idx:' + (idx++) + '">';
+      html += '<label class="header-row">';
+      html += '<input type="checkbox" value="' + p.id + '"' + (isChecked ? ' checked' : '') + '>';
+      html += '<div class="header-text">';
+      html += '<div class="header-meta">';
+      html += '<span class="id-pill">' + p.id + '</span>';
+      html += '<span class="action-badge ' + p.action_class + '">' + p.action_icon + ' ' + escHtml(p.action_label) + '</span>';
+      if (p.file_count > 0) html += '<span class="file-count-chip">' + p.file_count + ' файлов</span>';
+      if (p.project) html += '<span class="project-chip" title="' + escHtml(p.project) + '">' + escHtml(p.project) + '</span>';
+      html += '</div>';
+      html += '<h3 class="title">' + escHtml(p.title) + '</h3>';
+      html += '<div class="summary">' + escHtml(p.summary) + '</div>';
+      html += '</div></label>';
+      html += '<div class="body">';
+      for (const f of p.primary)   html += renderField(f);
+      for (const f of p.secondary) html += renderField(f);
+      for (const f of p.collapsed) html += renderField(f);
+      html += '</div></div>';
+    }
+    html += '</div>';
+  }
+  container.innerHTML = html;
+
+  // Wire section "select all" buttons
+  container.querySelectorAll('.select-all-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const cat = btn.dataset.cat;
+      saveUndo();
+      PROPOSALS.filter(p => p.id[0] === cat).forEach(p => selected.add(p.id));
+      syncCheckboxes();
+      updateUI();
+      showStatus('Выбрано все в ' + cat, 'success');
+    };
+  });
+
+  // Wire individual checkbox changes
+  container.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.onchange = () => {
+      if (cb.checked) selected.add(cb.value);
+      else selected.delete(cb.value);
+      cb.closest('.proposal').classList.toggle('checked', cb.checked);
+      updateUI();
+    };
+  });
+}
+
+function syncCheckboxes() {
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    const isSel = selected.has(cb.value);
+    cb.checked = isSel;
+    cb.closest('.proposal')?.classList.toggle('checked', isSel);
+  });
+}
+
+// ---------- actions ----------
+function saveUndo() { undoSnapshot = new Set(selected); }
+function applyUndo() {
+  if (!undoSnapshot) return false;
+  selected.clear();
+  undoSnapshot.forEach(id => selected.add(id));
+  undoSnapshot = null;
+  syncCheckboxes();
+  updateUI();
+  return true;
+}
+function selectAllVisible() {
+  saveUndo();
+  visibleProposals().forEach(p => selected.add(p.id));
+  syncCheckboxes(); updateUI();
+}
+function deselectAll() {
+  if (selected.size === 0) return;
+  saveUndo();
+  selected.clear();
+  syncCheckboxes(); updateUI();
+  showStatus('Снято · Esc — undo', 'warn');
+}
+
+// ---------- UI ----------
+function updateUI() {
+  const countEl = document.getElementById('sel-count');
+  const prevCount = parseInt(countEl.textContent, 10) || 0;
+  const newCount = selected.size;
+  const total = PROPOSALS.length;
+  countEl.textContent = newCount;
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('progress-bar').style.width = (total ? (newCount / total * 100) : 0) + '%';
+  document.getElementById('save-btn').disabled = newCount === 0;
+  if (newCount !== prevCount) {
+    countEl.classList.remove('bump');
+    void countEl.offsetWidth;
+    countEl.classList.add('bump');
+  }
+  persistSelection();
+}
+
+function showStatus(msg, kind) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = kind || '';
+  clearTimeout(showStatus._t);
+  showStatus._t = setTimeout(() => {
+    if (el.textContent === msg) { el.textContent = ''; el.className = ''; }
+  }, 8000);
+}
+
+async function saveChoices() {
+  if (selected.size === 0) { showStatus('Ничего не выбрано', 'error'); return; }
+  const data = JSON.stringify({
+    report_date: REPORT_DATE,
+    cwd: REPORT_CWD,
+    selected: [...selected],
+    timestamp: new Date().toISOString()
+  }, null, 2);
+  const filename = 'DREAM-CHOICES-' + REPORT_DATE + '.json';
+
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+      });
+      const w = await handle.createWritable();
+      await w.write(data);
+      await w.close();
+      showStatus('✓ Сохранено: ' + handle.name + ' · скажи wake', 'success');
+      return;
+    } catch(e) {
+      if (e.name === 'AbortError') { showStatus('Отменено', 'warn'); return; }
+    }
+  }
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('✓ Скачано: ' + filename + ' · скажи wake', 'success');
+}
+
+function buildStats() {
+  const stats = document.getElementById('stats');
+  const total = PROPOSALS.length;
+  const constructive = PROPOSALS.filter(p => p.action_class === 'constructive').length;
+  const destructive  = PROPOSALS.filter(p => p.action_class === 'destructive').length;
+  const totalFiles = PROPOSALS.reduce((s, p) => s + (p.file_count || 0), 0);
+  stats.innerHTML =
+    card('accent', '📋 Предложений', total) +
+    card('good',   '✨ Создание/мерж', constructive) +
+    card('danger', '⌫ Удаление', destructive) +
+    card('',       '📄 Затронет файлов', totalFiles);
+
+  function card(cls, label, value) {
+    return '<div class="stat-card ' + cls + '">' +
+           '<div class="label">' + label + '</div>' +
+           '<div class="value" data-target="' + value + '">0</div></div>';
+  }
+  // Count-up animation
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  stats.querySelectorAll('.value').forEach(el => {
+    const target = parseInt(el.dataset.target, 10);
+    if (reduce || target < 5) { el.textContent = target; return; }
+    const dur = 600;
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * eased);
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+// ---------- theme ----------
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  const initial = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  applyTheme(initial);
+  document.getElementById('theme-toggle').onclick = () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch(e) {}
+  };
+}
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  document.getElementById('theme-icon').textContent  = t === 'dark' ? '🌙' : '☀️';
+  document.getElementById('theme-label').textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+
+// ---------- keyboard ----------
+document.addEventListener('keydown', e => {
+  const inField = ['INPUT','TEXTAREA'].includes(document.activeElement?.tagName);
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' && !inField) {
+    e.preventDefault(); selectAllVisible();
+  } else if (e.key === 'Escape') {
+    if (selected.size === 0 && undoSnapshot) {
+      applyUndo();
+      showStatus('↶ Отменено', 'success');
+    } else {
+      deselectAll();
+    }
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault(); saveChoices();
+  } else if (e.key.toLowerCase() === 't' && !inField && !e.ctrlKey && !e.metaKey) {
+    document.getElementById('theme-toggle').click();
+  }
+});
+
+// ---------- wire buttons ----------
+document.getElementById('select-all-btn').onclick = selectAllVisible;
+document.getElementById('deselect-btn').onclick   = () => {
+  if (selected.size === 0 && undoSnapshot) { applyUndo(); showStatus('↶ Отменено', 'success'); }
+  else deselectAll();
+};
+document.getElementById('save-btn').onclick = saveChoices;
+
+// ---------- init ----------
+initTheme();
+restoreSelection();
+buildStats();
+renderFilters();
+renderProposals();
+updateUI();
+if (selected.size > 0) showStatus('Восстановлено ' + selected.size + ' выбранных', 'warn');
+</script>
+</body>
+</html>
