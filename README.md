@@ -41,6 +41,20 @@
 
 ## Quick Start
 
+**Easiest — let Claude install it.** Paste this message into Claude Code:
+
+```text
+Install the dream-skill memory consolidation skills from
+https://github.com/timoncool/dream-skill — clone the repo to a temp folder,
+copy its dream/ and wake/ folders into ~/.claude/skills/ (create the folder if
+missing; if I ask for a project-local install, use <project>/.claude/skills/
+instead), verify both SKILL.md files landed with their references/ and assets/,
+show me the list of installed files, then remind me to restart Claude Code so
+the skills load.
+```
+
+That's it — Claude clones, copies, verifies and reports. Manual way:
+
 1. **Clone**
    ```bash
    git clone https://github.com/timoncool/dream-skill.git
