@@ -10,6 +10,8 @@
 
 **[English](README.md)** · **[Русский](README_RU.md)**
 
+![Dream Report](docs/screenshots/report-dark.png)
+
 </div>
 
 ---
@@ -19,6 +21,10 @@
 ## Features
 
 - **Read-only walk** — dream only writes the report files; can never modify memory or notes by accident
+- **Evidence policy** — nothing is called "stale" without a `test -e` / `grep` check; unverifiable claims get an `[UNVERIFIED]` label and are never auto-applied
+- **Auto mode with an independent validator** — a fresh-context agent re-verifies every proposal against the actual files and approves instead of you; **full-auto** mode resolves everything hands-free
+- **Snapshot + rollback** — full memory snapshot before every apply; `wake rollback` restores it in one command (the rollback itself is also reversible)
+- **Output hygiene** — consolidated notes never contain meta-narratives ("user corrected this 3 times"), session IDs, or failure stories
 - **Reflective synthesis** — Phase Reflect surfaces patterns, drift, gaps, contradictions across files (extension over original autoDream)
 - **HTML UI with checkboxes** — dark/light theme with toggle, action-coded color strip on every card (visible before clicking), file chips, two-row filter pills, sticky progress bar, full keyboard navigation, a11y `:focus-visible`, `prefers-reduced-motion` respected
 - **Robust JSON-block contract** — proposals embedded as fenced JSON blocks in the report; wake parses with regex, immune to markdown formatting drift
@@ -104,7 +110,26 @@ Skip cwd notes / project READMEs scanning in global mode — too expensive, focu
 
 Trigger: `проснулся`, `wake`, `apply dream`, `wake M1,M3,N2`, `wake all`.
 
-Wake locates `DREAM-CHOICES-<date>.json` (cwd → `~/Downloads/` → `~/Desktop/`), parses report JSON blocks, shows summary, asks once for confirmation, then applies only checked items via `Edit`/`Write` and `mv` to `TRASH/`/`_archive/`. Appends a `## Wake log — <timestamp>` section to the report for audit trail.
+Wake locates `DREAM-CHOICES-<date>.json` (cwd → `~/Downloads/` → `~/Desktop/`), parses report JSON blocks, shows summary, asks once for confirmation, then **snapshots the whole memory dir** to `_archive/wake-backup-<date>/` and applies only checked items via `Edit`/`Write` and `mv` to `TRASH/`/`_archive/`. Appends a `## Wake log — <timestamp>` section to the report for audit trail.
+
+### Auto & full-auto — a validator instead of you
+
+| Mode | Trigger | Who decides | Left for you |
+|------|---------|-------------|--------------|
+| Manual | `dream` → checkboxes → `wake` | you | everything |
+| Auto | `autodream` / `поспи сам` | validator agent, except destructive actions | `delete`, `purge_trash`, `[UNVERIFIED]` |
+| Full-auto | `full autodream` / `полный автосон` | validator decides everything | nothing — rollback if unhappy |
+
+In auto modes, after the report is built dream spawns an **independent validator agent** (fresh context — the session that wrote the proposals must not be the one approving them). The validator's default is *reject*: it re-reads every touched file, re-runs the evidence checks itself, and returns per-proposal verdicts. Approved items go to `DREAM-CHOICES` with `"auto": true` and wake applies without waiting. In full-auto, `delete` gets a mandatory pre-delete backup into `TRASH/`, and unverifiable items are resolved conservatively as *keep* — every proposal gets an outcome, nothing is deferred to you.
+
+### Rollback
+
+```
+wake rollback            # restore memory from the latest pre-apply snapshot
+wake rollback 2026-07-07 # ...or from a specific date
+```
+
+Restores the memory dir from `_archive/wake-backup-*/`. Before restoring, the current state is snapshotted too — so a rollback can itself be rolled back. Files created after the snapshot are listed, never silently deleted.
 
 ## Auto-trigger (opt-in)
 
@@ -175,6 +200,8 @@ See [`dream/references/action_types.md`](dream/references/action_types.md) for f
 - `Edit`/`Write` only in `<memory_dir>/` (or `~/.claude/projects/<project>/memory/` if proposal has `project` field) and explicitly-listed cwd notes from selected proposals
 - `mv` only to `<memory_dir>/TRASH/`, `<cwd>/_archive/dream-applied-<date>/`, or `<cwd>/_archive/trash-purged-<date>/` (for `purge_trash`)
 - No `rm` ever (always `mv` = recoverable)
+- Full memory snapshot (`cp -r`) into `_archive/wake-backup-*/` before any apply — one-command rollback guaranteed
+- `cp` allowed only for snapshots, pre-delete backups into `TRASH/`, and rollback restore
 - No work on items not in `selected`
 - No project folder modifications
 - Same lock dir mechanism as dream (`<cwd>/.wake-lock/`) prevents concurrent apply runs
@@ -183,7 +210,15 @@ See [`dream/references/action_types.md`](dream/references/action_types.md) for f
 
 The leaked Claude Code v2.1.88 has `autoDream` — a background memory consolidation pass. It runs autonomously every ~24 hours when enough sessions accumulate. The original suffers from [issue #38493](https://github.com/anthropics/claude-code/issues/38493): *"writes inaccurately named, factually unverified, impossible-to-audit memories"* — because no human reviews what gets merged or deleted.
 
-`dream` + `wake` solve this with a hard split: dream is read-only and writes only the report; wake applies only what the human explicitly checked in the HTML UI. No autonomous mutations to memory ever.
+`dream` + `wake` solve this with a hard split: dream is read-only and writes only the report; wake applies only what was explicitly approved — by you in the HTML UI, or by an independent validator agent in auto modes. The gate is always there; only who holds it changes.
+
+In a real full-auto run over a 230+ file corpus the validator rejected 2 of 18 proposals — one because a "duplicate" file actually held unique credentials, one to keep the last trace of a lost rule. That's the gate earning its keep.
+
+## Demo
+
+Open [`docs/demo/DREAM-REPORT-demo.html`](docs/demo/DREAM-REPORT-demo.html) in a browser — the exact report from the screenshots, generated from fictional data. Checkboxes, filters, themes and Save choices all work.
+
+![Light theme](docs/screenshots/report-light.png)
 
 ## Inspired by
 

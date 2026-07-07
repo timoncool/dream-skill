@@ -1,6 +1,6 @@
 ---
 name: wake
-description: Применяет выбранные user'ом изменения из dream report. Парт 2 после skill `dream` — читает `DREAM-CHOICES-<date>.json` (созданный из HTML отчёта галочками) или ID в args (`wake M1,M3,N2` или `wake all`), парсит JSON-блоки в `DREAM-REPORT-<date>.md`, применяет ТОЛЬКО выбранные через Edit/Write в memory dir и согласованные cwd notes. Use whenever the user wants to "проснулся", "wake", "wake up", "проснись", "примени dream", "apply dream", "выполни dream", "сделай выбранное", "execute report", or after running `dream` skill. Это деструктивная часть — изменяет файлы, в отличие от dream который только читает. Никогда не запускается без явного выбора пользователя (через DREAM-CHOICES JSON или ID в args).
+description: Применяет выбранные user'ом изменения из dream report. Парт 2 после skill `dream` — читает `DREAM-CHOICES-<date>.json` (созданный из HTML отчёта галочками) или ID в args (`wake M1,M3,N2` или `wake all`), парсит JSON-блоки в `DREAM-REPORT-<date>.md`, применяет ТОЛЬКО выбранные через Edit/Write в memory dir и согласованные cwd notes. Use whenever the user wants to "проснулся", "wake", "wake up", "проснись", "примени dream", "apply dream", "выполни dream", "сделай выбранное", "execute report", or after running `dream` skill, а также для отката: "откати сон", "верни память как было", "wake rollback". Это деструктивная часть — изменяет файлы, в отличие от dream который только читает. Перед любым apply делает полный snapshot памяти в `_archive/wake-backup-*/` — любой сон откатывается одной командой. Никогда не запускается без явного выбора пользователя (через DREAM-CHOICES JSON или ID в args).
 ---
 
 # Wake — применение выбранного из dream
@@ -11,7 +11,7 @@ description: Применяет выбранные user'ом изменения 
 
 `wake` **НИКОГДА** не изобретает что применять. Источники выбора (по приоритету):
 
-1. **JSON файл** `DREAM-CHOICES-<date>.json` (из HTML кнопкой Save)
+1. **JSON файл** `DREAM-CHOICES-<date>.json` (из HTML кнопкой Save, либо создан валидатором в auto mode — помечен `"auto": true`, см. dream SKILL.md «Auto mode»)
 2. **Аргументы skill'а** — `wake M1,M3,N2` или `wake all`
 
 Если ни один не задан — спрашивает пользователя что выбрать, не делает ничего.
@@ -145,9 +145,15 @@ Verify: каждый ID в `selected` есть в map. Если нет — warn,
 >
 > Применить? Скажи "да" / "go" / "apply". Откажешься — "stop" / "отмена".
 
+Если title выбранного item содержит `[UNVERIFIED]` — выведи его в summary с ⚠️ и напомни: dream не смог верифицировать причину устаревания, применяется на доверии юзера.
+
 Жди подтверждения. Это финальный gate — после него apply без вопросов.
 
-Почему один gate а не каждый item: пользователь уже подумал галочками. Дополнительный approve раздражает. Но summary важен — могло измениться что-то с момента dream.
+**Auto mode:** если choices JSON содержит `"auto": true` **и** `"validator_verdicts"` — gate информационный: покажи summary + вердикты валидатора и применяй БЕЗ ожидания подтверждения. Перед apply перепроверь автостоп-лист: item с `[UNVERIFIED]` в title, action=`delete` или `purge_trash` в selected из auto-JSON → исключи, добавь в `skipped[]` с reason `"auto mode: manual-only action"`. Если `auto: true` без `validator_verdicts` — считай JSON подозрительным, работай как в ручном режиме (жди подтверждения). В Wake log добавь строку `Gate: auto (validator)`.
+
+**Full auto** (`"auto_level": "full"` в choices JSON): автостоп-лист для actions снимается — `delete` и `purge_trash` из selected применяются. Обязательная компенсация для `delete`: **перед** очисткой контента скопируй файл в корзину — `cp "$MEMORY_DIR_BASH/<target>" "$MEMORY_DIR_BASH/TRASH/<target>.pre-delete-$REPORT_DATE.md"` — и только потом Edit. Айтемы с `[UNVERIFIED]` в title исключаются даже в full auto (валидатор не имел права их одобрить — попадание в selected означает сбой, reason `"full auto: [UNVERIFIED] must not be auto-approved"`). В Wake log — `Gate: full-auto (validator)`.
+
+Почему один gate а не каждый item: пользователь уже подумал галочками (или за него подумал независимый валидатор в auto mode). Дополнительный approve раздражает. Но summary важен — могло измениться что-то с момента dream.
 
 ### Phase 4 — Apply (по подтверждению)
 
@@ -162,6 +168,18 @@ def resolve_memory_dir(proposal, default_dir):
 ```
 
 **Verify cross-project access:** для каждого уникального `project` в selected — проверь `os.path.isdir(target_dir)` до начала apply'а. Если нет → fail весь cross-project item с reason "memory dir not found for project=<slug>".
+
+**Полный snapshot памяти ДО любых изменений** (всегда, во всех режимах — гарантия отката одной командой):
+
+```bash
+SNAP="$CWD_BASH/_archive/wake-backup-$REPORT_DATE-$(date +%H%M%S)"
+mkdir -p "$SNAP"
+cp -r "$MEMORY_DIR_BASH/." "$SNAP/"
+echo "Snapshot: $SNAP"
+# Global mode: для каждого уникального project в selected — cp -r его memory dir в "$SNAP/<slug>/"
+```
+
+Memory dir маленький (сотни КБ) — snapshot дешевле любого спора о том, что изменилось. Путь snapshot'а обязателен в финальном отчёте и Wake log.
 
 **Подготовь dest директории один раз перед началом:**
 
@@ -187,6 +205,7 @@ mkdir -p "$CWD_BASH/_archive/trash-purged-$REPORT_DATE"   # для purge_trash i
 - Для каждого source: `mv "$MEMORY_DIR_BASH/<source>" "$MEMORY_DIR_BASH/TRASH/"`
 
 #### action: delete
+- В full auto (`auto_level: "full"`) — сначала pre-delete backup: `cp` target в `TRASH/<target>.pre-delete-<date>.md` (см. Phase 3)
 - Edit `target` для очистки контента (оставить frontmatter с заметкой `<!-- deleted YYYY-MM-DD by wake -->`)
 
 #### action: soft_delete
@@ -245,16 +264,16 @@ mkdir -p "$CWD_BASH/_archive/trash-purged-$REPORT_DATE"   # для purge_trash i
 ```bash
 echo "=== Memory dir state ==="
 wc -l "$MEMORY_DIR_BASH/MEMORY.md"
-ls "$MEMORY_DIR"/*.md | wc -l
+ls "$MEMORY_DIR_BASH"/*.md | wc -l
 ls "$MEMORY_DIR_BASH/TRASH/" 2>/dev/null | wc -l
 
-# Broken link check in MEMORY.md (через Python — надёжнее с пробелами в путях)
+# Broken link check in MEMORY.md (Python — ТОЛЬКО _WIN пути; bash-mount /c/... Python на Windows не поймёт)
 python -c "
 import re, os
-content = open(r'$MEMORY_DIR_BASH/MEMORY.md', encoding='utf-8').read()
+content = open(r'$MEMORY_DIR_WIN/MEMORY.md', encoding='utf-8').read()
 links = re.findall(r'\(([^)]+\.md)\)', content)
 for link in links:
-    full = os.path.join(r'$MEMORY_DIR', link)
+    full = os.path.join(r'$MEMORY_DIR_WIN', link)
     if not os.path.isfile(full):
         print(f'BROKEN: {link}')
 "
@@ -272,6 +291,7 @@ Applied: N items (M: K, N: L, I: M, O: P)
 Failed: <list with reasons or "none">
 Skipped: <list или "none">
 Memory dir: X → Y файлов, MEMORY.md: A → B строк
+Snapshot: <path> (откат: «откати сон»)
 Choices: <path JSON> (можно архивировать)
 ```
 
@@ -329,7 +349,11 @@ Skipped:
   - `<memory_dir>/TRASH/` (для memory soft-delete)
   - `<cwd>/_archive/dream-applied-<date>/` (для cwd notes archive)
   - `<cwd>/_archive/trash-purged-<date>/` (для purge_trash из memory/TRASH/)
-- `mkdir -p` — для dest директорий перед mv
+- `cp` — **ТОЛЬКО**:
+  - `cp -r <memory_dir>/. <cwd>/_archive/wake-backup-*/` — обязательный snapshot перед apply (и pre-rollback snapshot в Rollback)
+  - `cp` в `<memory_dir>/TRASH/` как pre-delete backup в full auto
+  - `cp -r` из `_archive/wake-backup-*/` обратно в `<memory_dir>/` — только в Rollback режиме
+- `mkdir -p` — для dest директорий перед mv/cp
 
 **Запрещено:**
 - Любая работа над items НЕ в `selected`
@@ -339,6 +363,21 @@ Skipped:
 - Изменение чего-либо вне явных file paths из выбранных proposals
 
 **Если уверен что нужно сделать что-то не в списке:** STOP, спроси пользователя.
+
+## Rollback — откат применённого сна
+
+Триггеры: `откати сон`, `верни память как было`, `wake rollback`, `wake rollback <date>`.
+
+Восстанавливает memory dir из snapshot'а, сделанного перед apply. Работает для любого режима (ручной / auto / full auto).
+
+1. Найти snapshot: последний `<cwd>/_archive/wake-backup-*/` по mtime, либо по дате из args. Если snapshot'ов нет — STOP, сообщи (откатывать нечего или backup был удалён вручную).
+2. Показать в чат: какой snapshot, его дата, сколько файлов, какие Wake log'и были после него.
+3. **Pre-rollback snapshot текущего состояния** (откат тоже обратим): `cp -r "$MEMORY_DIR_BASH/." "$CWD_BASH/_archive/wake-backup-$(date +%Y-%m-%d-%H%M%S)-pre-rollback/"`
+4. Восстановить: `cp -r "<snapshot>/." "$MEMORY_DIR_BASH/"` — файлы перезаписываются содержимым snapshot'а. Файлы, созданные ПОСЛЕ snapshot'а (например `create_new` из apply), останутся на диске — перечисли их юзеру, пусть решит (они в snapshot'е отсутствуют, автоматически их не удаляй — no-rm правило).
+5. Добавить в `DREAM-REPORT-<date>.md` блок `## Rollback log — <timestamp>` (какой snapshot восстановлен, из-за чего).
+6. Финал: сколько файлов восстановлено, где лежит pre-rollback snapshot, список оставшихся новых файлов.
+
+Никакого `rm` и здесь: rollback — это `cp` из архива поверх, обе точки состояния сохраняются.
 
 ## Edge cases
 

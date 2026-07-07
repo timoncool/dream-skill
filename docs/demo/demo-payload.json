@@ -1,0 +1,87 @@
+{
+  "date": "2026-07-07",
+  "timestamp_iso": "2026-07-07T09:00:00Z",
+  "memory_dir": "C:/Users/demo/.claude/projects/D--Projects-Acme/memory",
+  "cwd": "D:/Projects/TEMP/dream-skill/docs/demo",
+  "files_count": "38 memory + 6 cwd notes + 3 project READMEs / read in full: 47",
+  "insights": [
+    "Индекс отстал от корпуса: 7 файлов памяти без хука в MEMORY.md — невидимы для recall, хотя содержат живые правила.",
+    "Серия handoff'ов по платёжному шлюзу (4 файла за март) закрыта финальным отчётом — промежуточные дубли можно убирать.",
+    "Конфликт разрешим по свежести: правило «деплой по пятницам запрещён» (03-02) отменено более свежей записью «деплой в любой день после smoke-тестов» (05-14).",
+    "Записи со статусами («MR на ревью», «ждём ответ поддержки») протухают за 2-3 недели — правила почти не стареют.",
+    "Относительные даты в 5 файлах («на прошлой неделе», «вчера») — конвертировать в абсолютные, якорь mtime."
+  ],
+  "proposals": [
+    {
+      "id": "M1", "category": "memory", "action": "merge",
+      "title": "Merge: 3 промежуточных handoff'а платёжки → финальный",
+      "files": ["handoff_payments_2026_03_10.md", "handoff_payments_2026_03_14.md", "handoff_payments_2026_03_18.md"],
+      "target": "handoff_payments_final_2026_03_21.md",
+      "diff_preview": "В финальный отчёт добавить секцию «Хронология» с уникальными фактами из промежуточных: лимит webhook-ретраев (03-10), причина отказа от polling (03-14), тест-карта песочницы (03-18).",
+      "rationale": "Серия завершена 03-21, финальный отчёт покрывает архитектуру целиком. Verified: уникальные факты перечислены, внешних ссылок на промежуточные файлы нет."
+    },
+    {
+      "id": "M2", "category": "memory", "action": "update",
+      "title": "Правило деплоя устарело — конфликт разрешён по свежести",
+      "target": "feedback_no_friday_deploy.md",
+      "diff_preview": "Заменить «деплой по пятницам запрещён» на актуальное правило из feedback_deploy_after_smoke.md (05-14): деплой в любой день после зелёных smoke-тестов; пятница — с дежурным.",
+      "rationale": "Запись 05-14 новее и содержит прямое указание тимлида. Verified: обе записи прочитаны, противоречие однозначно."
+    },
+    {
+      "id": "M3", "category": "memory", "action": "soft_delete",
+      "title": "Статусная заметка «MR #42 на ревью» — MR давно смержен",
+      "files": ["project_checkout_mr42_status.md"],
+      "rationale": "Verified: ветка feature-checkout отсутствует в origin (git ls-remote), изменения в main с 04-02. Статусная запись без durable-фактов. Внешних ссылок 0."
+    },
+    {
+      "id": "M4", "category": "memory", "action": "create_new",
+      "title": "Новая запись: рецепт локального стенда из разрозненных заметок",
+      "target": "reference_local_stand_recipe.md",
+      "content_template": "Сводный рецепт запуска локального стенда acme-webshop: docker compose up + сид тест-данных + туннель для webhook'ов. Источник: 3 cwd-заметки марта.",
+      "type": "reference",
+      "rationale": "Рецепт размазан по трём заметкам в рабочей папке — при потере папки знание пропадёт. Консолидация в память."
+    },
+    {
+      "id": "N1", "category": "notes", "action": "extract",
+      "title": "Извлечь чек-лист релиза из notes.md в память",
+      "source_note": "notes.md",
+      "target_memory_file": "reference_release_checklist.md",
+      "what_to_extract": "Секция «Перед релизом» (12 пунктов) — единственная durable-часть файла",
+      "source_action": "keep",
+      "rationale": "Чек-лист используется каждый релиз, но живёт в черновике. Остальное в notes.md — сессионный мусор, не трогаем."
+    },
+    {
+      "id": "I1", "category": "index", "action": "remove_links",
+      "title": "MEMORY.md: убрать 2 битые ссылки",
+      "links_to_remove": ["(handoff_old_auth_2026_01.md)", "(project_legacy_cart.md)"],
+      "rationale": "Оба файла отсутствуют на диске (verified test -e) — ссылки ведут в никуда."
+    },
+    {
+      "id": "I2", "category": "index", "action": "shorten_lines",
+      "title": "MEMORY.md: сжать хук-простыню про API-шлюз (310 → 120 chars)",
+      "lines_to_shorten": [
+        {
+          "original": "- [API-шлюз](reference_api_gateway.md) — все эндпоинты, лимиты, ретраи, схемы ошибок, примеры curl, песочница, боевые ключи, мониторинг, алерты",
+          "replacement": "- [API-шлюз](reference_api_gateway.md) — эндпоинты, лимиты, ретраи; когда интегрируешь внешний сервис"
+        }
+      ],
+      "rationale": "Хук пересказывал содержимое файла. Детали остаются в recall-файле."
+    },
+    {
+      "id": "I3", "category": "index", "action": "add_links",
+      "title": "MEMORY.md: хуки для 4 orphan-файлов",
+      "links_to_add": [
+        {"section": "## Feedback", "line": "- [Никогда не менять схему БД без миграции](feedback_no_manual_schema.md) | [Фичефлаги вместо веток](feedback_feature_flags.md)"},
+        {"section": "## References", "line": "- [Тест-карты песочницы](reference_sandbox_cards.md) | [Регламент дежурств](reference_oncall_rules.md)"}
+      ],
+      "rationale": "4 живых файла без точки входа в индексе — невидимы для будущих сессий."
+    },
+    {
+      "id": "O1", "category": "other", "action": "purge_trash",
+      "title": "TRASH: вынести в архив 6 файлов старше 30 дней",
+      "files": ["old_sprint_notes_2026_02.md", "draft_plan_v1.md", "draft_plan_v2.md", "handoff_prototype_2026_02_11.md", "tmp_research_dump.md", "meeting_2026_02_20.md"],
+      "rationale": "Лежат в корзине с февраля, ни один не восстанавливался. mv в _archive — recoverable."
+    }
+  ],
+  "apply_order": [["M1", "M2", "M3", "M4"], ["N1"], ["I1", "I2", "I3"], ["O1"]]
+}
