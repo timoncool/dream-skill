@@ -158,9 +158,9 @@ Restores the memory dir from `_archive/wake-backup-*/`. Before restoring, the cu
 satori (in-session)                dream/wake (between sessions)
 corrections & failures  ──────▶  Skill harvest phase reads satori's
 → lesson candidates              staging + usage telemetry
-→ SKILL.md drafts in staging ──▶ promote_skill / retire_skill proposals
-   (never self-activate)         → your checkboxes or the validator
-                                 → wake activates or retires; rollback
+→ SKILL.md drafts, auto-      ──▶ retire_skill / promote_skill proposals
+   activated (⛩ announced,       → your checkboxes or the validator
+   one-call revert)              → wake applies the audit; rollback
                                    covers skills too
 ```
 

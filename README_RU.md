@@ -157,9 +157,9 @@ wake rollback 2026-07-07  # ...или из снапшота конкретной
 satori (внутри сессии)            dream/wake (между сессиями)
 коррекции и падения  ──────▶  фаза Skill harvest читает staging
 → кандидаты в уроки           satori + телеметрию использования
-→ SKILL.md драфты в staging ─▶ proposals promote_skill / retire_skill
-   (сами НЕ активируются)     → твои галочки или валидатор
-                              → wake активирует или хоронит; rollback
+→ SKILL.md драфты, авто-    ─▶ proposals retire_skill / promote_skill
+   активация (⛩-анонс,        → твои галочки или валидатор
+   откат одним вызовом)       → wake применяет аудит; rollback
                                 покрывает и скиллы
 ```
 
