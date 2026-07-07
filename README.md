@@ -28,7 +28,8 @@
 - **Reflective synthesis** — Phase Reflect surfaces patterns, drift, gaps, contradictions across files (extension over original autoDream)
 - **HTML UI with checkboxes** — dark/light theme with toggle, action-coded color strip on every card (visible before clicking), file chips, two-row filter pills, sticky progress bar, full keyboard navigation, a11y `:focus-visible`, `prefers-reduced-motion` respected
 - **Robust JSON-block contract** — proposals embedded as fenced JSON blocks in the report; wake parses with regex, immune to markdown formatting drift
-- **10 action types** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links` / `purge_trash` (TRASH → `_archive/` after 30 days)
+- **12 action types** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links` / `promote_skill` / `retire_skill` / `purge_trash` (TRASH → `_archive/` after 30 days)
+- **Skill harvest** — if the [satori](https://github.com/timoncool/satori) self-learning loop is installed, dream reads its staged skill drafts + usage telemetry and proposes promote/retire through the same gate
 - **Two-level recovery bin** — `soft_delete` → `memory/TRASH/` → after 30 days `purge_trash` proposes moving to `_archive/`. No `rm` ever.
 - **Cross-project global mode** — optional `dream global` scans every `~/.claude/projects/*/memory/` to find duplicate feedback files copy-pasted across projects, dead memory dirs, drift patterns
 - **Append-only notes log** — survives context compaction; Phase Reflect reads from disk, not RAM
@@ -82,7 +83,7 @@ Open the HTML in a browser:
 
 Color-coding is visible **before clicking** — you can scan a 50-card report for destructive items at a glance.
 
-**Filters** (two rows): top — by category (M/N/I/O) or by action class (constructive/destructive); bottom (global mode only) — by project. Filters AND together; counts update live.
+**Filters** (two rows): top — by category (M/N/I/S/O) or by action class (constructive/destructive); bottom (global mode only) — by project. Filters AND together; counts update live.
 
 **Per-section "Select all M/N/I/O"** button next to each section header — bulk-select inside one category without touching others.
 
@@ -117,7 +118,7 @@ Wake locates `DREAM-CHOICES-<date>.json` (cwd → `~/Downloads/` → `~/Desktop/
 | Mode | Trigger | Who decides | Left for you |
 |------|---------|-------------|--------------|
 | Manual | `dream` → checkboxes → `wake` | you | everything |
-| Auto | `autodream` / `поспи сам` | validator agent, except destructive actions | `delete`, `purge_trash`, `[UNVERIFIED]` |
+| Auto | `autodream` / `поспи сам` | validator agent, except destructive actions | `delete`, `purge_trash`, `promote_skill`, `[UNVERIFIED]` |
 | Full-auto | `full autodream` / `полный автосон` | validator decides everything | nothing — rollback if unhappy |
 
 In auto modes, after the report is built dream spawns an **independent validator agent** (fresh context — the session that wrote the proposals must not be the one approving them). The validator's default is *reject*: it re-reads every touched file, re-runs the evidence checks itself, and returns per-proposal verdicts. Approved items go to `DREAM-CHOICES` with `"auto": true` and wake applies without waiting. In full-auto, `delete` gets a mandatory pre-delete backup into `TRASH/`, and unverifiable items are resolved conservatively as *keep* — every proposal gets an outcome, nothing is deferred to you.
@@ -130,6 +131,22 @@ wake rollback 2026-07-07 # ...or from a specific date
 ```
 
 Restores the memory dir from `_archive/wake-backup-*/`. Before restoring, the current state is snapshotted too — so a rollback can itself be rolled back. Files created after the snapshot are listed, never silently deleted.
+
+## Works best with satori
+
+[**satori** 悟り](https://github.com/timoncool/satori) is this project's sibling — a self-learning loop (MCP + hooks) that turns your corrections and tool failures into *skill drafts* during the session. Together they close the full learning cycle:
+
+```
+satori (in-session)                dream/wake (between sessions)
+corrections & failures  ──────▶  Skill harvest phase reads satori's
+→ lesson candidates              staging + usage telemetry
+→ SKILL.md drafts in staging ──▶ promote_skill / retire_skill proposals
+   (never self-activate)         → your checkboxes or the validator
+                                 → wake activates or retires; rollback
+                                   covers skills too
+```
+
+dream/wake owns **factual memory** (notes, rules, index), satori owns **procedural memory** (skills). Each works standalone; together — сон → пробуждение → прозрение (dream → wake → satori).
 
 ## Auto-trigger (opt-in)
 
@@ -157,7 +174,7 @@ Triggers `dream` when ≥5 memory files changed since last run. Still produces t
 dream/
 ├── SKILL.md                  # 4-phase workflow + safety rules + path computation + lock + global mode
 ├── references/
-│   └── action_types.md       # JSON contract for 10 proposal action types + optional 'project' field
+│   └── action_types.md       # JSON contract for 12 proposal action types + optional 'project' field
 └── assets/
     ├── template.html         # dark/light theme UI, Google Fonts only (~1150 lines)
     └── build_report.py       # payload JSON → MD + HTML, per-action validation
@@ -233,6 +250,7 @@ Open [`docs/demo/DREAM-REPORT-demo.html`](docs/demo/DREAM-REPORT-demo.html) in a
 
 | Project | Description |
 |---------|-------------|
+| [satori](https://github.com/timoncool/satori) | Self-learning loop — skills from your own sessions, behind the same gate |
 | [telegram-api-mcp](https://github.com/timoncool/telegram-api-mcp) | Full Telegram Bot API as MCP server |
 | [civitai-mcp-ultimate](https://github.com/timoncool/civitai-mcp-ultimate) | Civitai API as MCP server |
 | [trail-spec](https://github.com/timoncool/trail-spec) | TRAIL — cross-MCP content tracking protocol |

@@ -28,7 +28,8 @@
 - **Рефлексивный синтез** — Phase Reflect находит паттерны, дрейф, пробелы и противоречия между файлами (расширение поверх оригинального autoDream)
 - **HTML UI с чекбоксами** — тёмная/светлая тема с переключателем, цветная полоска слева на каждой карточке (видна **до клика**), чипы файлов, два ряда фильтр-пилюль, sticky прогресс-бар, полная клавиатурная навигация, a11y `:focus-visible`, `prefers-reduced-motion`
 - **Надёжный JSON-block контракт** — proposals встроены как fenced JSON блоки в отчёт; wake парсит regex-ом, защищён от любого markdown drift
-- **10 типов действий** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links` / `purge_trash` (TRASH → `_archive/` через 30 дней)
+- **12 типов действий** — `update` / `merge` / `delete` / `soft_delete` / `create_new` / `extract` / `remove_links` / `shorten_lines` / `add_links` / `promote_skill` / `retire_skill` / `purge_trash` (TRASH → `_archive/` через 30 дней)
+- **Skill harvest** — если установлен луп самообучения [satori](https://github.com/timoncool/satori), dream читает его staged-драфты скиллов + телеметрию использования и выносит promote/retire через тот же гейт
 - **Двухуровневая корзина** — `soft_delete` → `memory/TRASH/` → через 30 дней `purge_trash` предлагает вынести в `_archive/`. Никаких `rm`.
 - **Cross-project global mode** — опциональный `dream global` сканирует все `~/.claude/projects/*/memory/`, находит дубли feedback'ов скопированные между проектами, мёртвые memory dirs, паттерны drift
 - **Append-only лог заметок** — переживает компакшен контекста; Phase Reflect читает с диска, не из RAM
@@ -82,7 +83,7 @@ Output:
 
 Цветовая кодировка видна **до клика** — на отчёте из 50 карточек деструктив видишь сразу.
 
-**Фильтры** (два ряда): верхний — по категории (M/N/I/O) или action class (constructive/destructive); нижний (только в global mode) — по проекту. Фильтры объединяются по AND, счётчики обновляются live.
+**Фильтры** (два ряда): верхний — по категории (M/N/I/S/O) или action class (constructive/destructive); нижний (только в global mode) — по проекту. Фильтры объединяются по AND, счётчики обновляются live.
 
 **Кнопка "Выбрать все M/N/I/O"** рядом с заголовком каждой секции — массовый select внутри одной категории без затрагивания других.
 
@@ -117,7 +118,7 @@ Wake находит `DREAM-CHOICES-<date>.json` (cwd → `~/Downloads/` → `~/D
 | Режим | Триггер | Кто решает | Остаётся тебе |
 |-------|---------|------------|---------------|
 | Ручной | `поспи` → галочки → `проснулся` | ты | всё |
-| Auto | `автосон` / `поспи сам` | валидатор, кроме деструктива | `delete`, `purge_trash`, `[UNVERIFIED]` |
+| Auto | `автосон` / `поспи сам` | валидатор, кроме деструктива | `delete`, `purge_trash`, `promote_skill`, `[UNVERIFIED]` |
 | Full-auto | `полный автосон` | валидатор решает всё | ничего — «откати сон», если что |
 
 В авто-режимах после сборки отчёта dream спавнит **независимого агента-валидатора** (свежий контекст — сессия, писавшая proposals, не должна их же одобрять). Дефолт валидатора — *отклонить*: он сам перечитывает затронутые файлы, сам перепроверяет evidence и возвращает вердикт на каждый proposal. Одобренное уходит в `DREAM-CHOICES` с `"auto": true`, wake применяет без ожидания. В full-auto `delete` получает обязательный pre-delete бэкап в `TRASH/`, а непроверяемое разруливается консервативно — «оставить как есть»; каждый proposal получает исход, тебе ничего не откладывается.
@@ -130,6 +131,22 @@ wake rollback 2026-07-07  # ...или из снапшота конкретной
 ```
 
 Восстанавливает memory dir из `_archive/wake-backup-*/`. Перед восстановлением текущее состояние тоже снапшотится — откат можно откатить. Файлы, созданные после снапшота, перечисляются, а не удаляются молча.
+
+## Лучше всего работает вместе с satori
+
+[**satori** 悟り](https://github.com/timoncool/satori) — родной брат этого проекта: луп самообучения (MCP + хуки), который прямо в сессии превращает твои коррекции и падения тулзов в *драфты скиллов*. Вместе они замыкают полный цикл обучения:
+
+```
+satori (внутри сессии)            dream/wake (между сессиями)
+коррекции и падения  ──────▶  фаза Skill harvest читает staging
+→ кандидаты в уроки           satori + телеметрию использования
+→ SKILL.md драфты в staging ─▶ proposals promote_skill / retire_skill
+   (сами НЕ активируются)     → твои галочки или валидатор
+                              → wake активирует или хоронит; rollback
+                                покрывает и скиллы
+```
+
+dream/wake ведёт **фактическую память** (заметки, правила, индекс), satori — **процедурную** (скиллы). Каждый работает сам по себе; вместе — сон → пробуждение → прозрение.
 
 ## Auto-trigger (опционально)
 
@@ -157,7 +174,7 @@ wake rollback 2026-07-07  # ...или из снапшота конкретной
 dream/
 ├── SKILL.md                  # 4-фазный workflow + safety rules + paths + lock + global mode
 ├── references/
-│   └── action_types.md       # JSON контракт для 10 типов действий + опциональное поле 'project'
+│   └── action_types.md       # JSON контракт для 12 типов действий + опциональное поле 'project'
 └── assets/
     ├── template.html         # тёмная/светлая тема UI, только Google Fonts (~1150 строк)
     └── build_report.py       # payload JSON → MD + HTML, per-action валидация
@@ -233,6 +250,7 @@ wake/
 
 | Проект | Описание |
 |--------|----------|
+| [satori](https://github.com/timoncool/satori) | Луп самообучения — скиллы из собственных сессий, за тем же гейтом |
 | [telegram-api-mcp](https://github.com/timoncool/telegram-api-mcp) | Полный Telegram Bot API как MCP сервер |
 | [civitai-mcp-ultimate](https://github.com/timoncool/civitai-mcp-ultimate) | Civitai API как MCP сервер |
 | [trail-spec](https://github.com/timoncool/trail-spec) | TRAIL — cross-MCP протокол отслеживания контента |
